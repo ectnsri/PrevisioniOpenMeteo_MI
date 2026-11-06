@@ -1,215 +1,436 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Meteo Milano</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Meteo Milano ECMWF</title>
 
 <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 
 <style>
-html, body {
-  margin: 0;
-  height: 100%;
-  background: #001129;
-  font-family: Segoe UI, Arial, sans-serif;
+
+html,
+body{
+    margin:0;
+    padding:0;
+    width:100%;
+    height:100%;
+    background:#001129;
+    font-family:Segoe UI,Arial,sans-serif;
 }
 
-#chart {
-  width: 100%;
-  height: 700px;
+#chart{
+    width:100%;
+    height:100vh;
 }
+
 </style>
 </head>
+
 <body>
 
 <div id="chart"></div>
 
 <script>
 
-const apiUrl =
-'https://api.open-meteo.com/v1/ecmwf?latitude=45.4642&longitude=9.1900&hourly=temperature_2m,wind_speed_10m,rain&forecast_days=10';
+const LAT = 45.46415362253196;
+const LON = 9.19148029280355;
+const CITY = "Milano";
 
-fetch(apiUrl)
-.then(r => r.json())
-.then(data => {
+const chart = echarts.init(
+    document.getElementById("chart")
+);
 
-  const time = data.hourly.time.map(t =>
-      t.replace('T','\n')
-  );
+async function loadForecast(){
 
-  const temp = data.hourly.temperature_2m;
-  const wind = data.hourly.wind_speed_10m;
-  const rain = data.hourly.rain;
+    try{
 
-  const chart = echarts.init(
-    document.getElementById('chart')
-  );
+        const apiUrl =
+            `https://api.open-meteo.com/v1/ecmwf?latitude=${LAT}&longitude=${LON}&hourly=temperature_2m,wind_speed_10m,rain&forecast_days=10`;
 
-  const option = {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
 
-    backgroundColor: '#001129',
+        const times = data.hourly.time;
 
-    title: {
-      text:
-      'Milano - ECMWF Forecast',
-      left: 'center',
-      top: 10,
-      textStyle: {
-        color: '#ffffff',
-        fontSize: 28,
-        fontWeight: 'bold'
-      }
-    },
+        const temperature =
+            data.hourly.temperature_2m;
 
-    tooltip: {
-      trigger: 'axis'
-    },
+        const wind =
+            data.hourly.wind_speed_10m;
 
-    legend: {
-      top: 50,
-      textStyle: {
-        color: '#ffffff'
-      },
-      data: [
-        'Temperatura',
-        'Vento',
-        'Pioggia'
-      ]
-    },
+        const rain =
+            data.hourly.rain;
 
-    grid: {
-      left: 80,
-      right: 100,
-      top: 100,
-      bottom: 80
-    },
+        const now = new Date();
 
-    xAxis: {
-      type: 'category',
-      data: time,
-      axisLine: {
-        lineStyle: {
-          color: '#ffffff'
+        let nowIndex =
+            times.findIndex(
+                t => new Date(t) > now
+            );
+
+        if(nowIndex < 0){
+            nowIndex = times.length - 1;
         }
-      },
-      axisLabel: {
-        color: '#ffffff',
-        rotate: 45
-      }
-    },
 
-    yAxis: [
+        chart.setOption({
 
-      {
-        type: 'value',
-        name: '°C',
-        position: 'left',
+            backgroundColor:"#001129",
 
-        nameTextStyle: {
-          color: '#00B4FF'
-        },
+            animation:true,
 
-        axisLabel: {
-          color: '#00B4FF'
-        },
+            title:[
 
-        splitLine: {
-          lineStyle: {
-            color: '#4b5563'
-          }
-        }
-      },
+                {
+                    text:`${CITY}`,
 
-      {
-        type: 'value',
-        name: 'km/h',
-        position: 'left',
-        offset: 55,
+                    left:"center",
 
-        axisLabel: {
-          color: '#5A5AFF'
-        },
+                    top:10,
 
-        nameTextStyle: {
-          color: '#5A5AFF'
-        }
-      },
+                    textStyle:{
+                        color:"#FFFFFF",
+                        fontSize:30,
+                        fontWeight:"bold"
+                    }
+                },
 
-      {
-        type: 'value',
-        name: 'mm',
-        position: 'right',
+                {
+                    text:
+                        `${LAT.toFixed(2)}°N ${LON.toFixed(2)}°E`,
 
-        axisLabel: {
-          color: '#00FF7F'
-        },
+                    left:"center",
 
-        nameTextStyle: {
-          color: '#00FF7F'
-        }
-      }
+                    top:50,
 
-    ],
+                    textStyle:{
+                        color:"#C9D5E5",
+                        fontSize:17,
+                        fontWeight:"normal"
+                    }
+                }
 
-    dataZoom: [
-      {
-        type: 'inside'
-      },
-      {
-        type: 'slider',
-        height: 25
-      }
-    ],
+            ],
 
-    series: [
+            legend:{
 
-      {
-        name: 'Temperatura',
-        type: 'line',
-        smooth: true,
-        yAxisIndex: 0,
-        symbol: 'none',
-        lineStyle: {
-          width: 3,
-          color: '#00B4FF'
-        },
-        data: temp
-      },
+                right:15,
 
-      {
-        name: 'Vento',
-        type: 'line',
-        smooth: true,
-        yAxisIndex: 1,
-        symbol: 'none',
-        lineStyle: {
-          width: 2,
-          color: '#5A5AFF'
-        },
-        data: wind
-      },
+                top:"middle",
 
-      {
-        name: 'Pioggia',
-        type: 'bar',
-        yAxisIndex: 2,
-        itemStyle: {
-          color: '#00E676'
-        },
-        data: rain
-      }
+                orient:"vertical",
 
-    ]
-  };
+                textStyle:{
+                    color:"#FFFFFF"
+                },
 
-  chart.setOption(option);
+                data:[
+                    "temperature_2m",
+                    "wind_speed_10m",
+                    "rain"
+                ]
+            },
 
-  window.addEventListener('resize', () => {
-    chart.resize();
-  });
+            tooltip:{
 
-});
+                trigger:"axis",
+
+                backgroundColor:"#001129",
+
+                borderColor:"#42526E",
+
+                textStyle:{
+                    color:"#ffffff"
+                },
+
+                formatter:function(params){
+
+                    const idx =
+                        params[0].dataIndex;
+
+                    const date =
+                        new Date(times[idx]);
+
+                    return `
+                        <b>${date.toLocaleString("it-IT")}</b>
+                        <br><br>
+
+                        🌡️ Temperatura:
+                        <b>${temperature[idx]} °C</b>
+
+                        <br>
+
+                        🌬️ Vento:
+                        <b>${wind[idx]} km/h</b>
+
+                        <br>
+
+                        🌧️ Pioggia:
+                        <b>${rain[idx]} mm</b>
+                    `;
+                }
+            },
+
+            grid:{
+                left:80,
+                right:140,
+                top:90,
+                bottom:90
+            },
+
+            xAxis:{
+
+                type:"category",
+
+                boundaryGap:false,
+
+                data:times,
+
+                axisLine:{
+                    lineStyle:{
+                        color:"#777"
+                    }
+                },
+
+                axisTick:{
+                    show:false
+                },
+
+                axisLabel:{
+
+                    color:"#E0E0E0",
+
+                    hideOverlap:true,
+
+                    formatter:function(value){
+
+                        const d =
+                            new Date(value);
+
+                        const h =
+                            d.getHours();
+
+                        if(h === 0){
+
+                            return d.toLocaleDateString(
+                                "it-IT",
+                                {
+                                  day:"numeric",
+                                  month:"short"
+                                }
+                            );
+                        }
+
+                        return "";
+                    }
+                }
+            },
+
+            yAxis:[
+
+                {
+                    type:"value",
+
+                    name:"°C",
+
+                    nameLocation:"middle",
+
+                    nameGap:50,
+
+                    min:function(v){
+                        return Math.floor(v.min - 2);
+                    },
+
+                    max:function(v){
+                        return Math.ceil(v.max + 2);
+                    },
+
+                    axisLabel:{
+                        color:"#1DB3FF"
+                    },
+
+                    nameTextStyle:{
+                        color:"#1DB3FF"
+                    },
+
+                    splitLine:{
+                        lineStyle:{
+                            color:"#40485C"
+                        }
+                    }
+                },
+
+                {
+                    type:"value",
+
+                    position:"left",
+
+                    offset:55,
+
+                    name:"km/h",
+
+                    nameLocation:"middle",
+
+                    nameGap:45,
+
+                    axisLabel:{
+                        color:"#5A5AFF"
+                    },
+
+                    nameTextStyle:{
+                        color:"#5A5AFF"
+                    }
+                },
+
+                {
+                    type:"value",
+
+                    position:"right",
+
+                    name:"mm",
+
+                    axisLabel:{
+                        color:"#00E676"
+                    },
+
+                    nameTextStyle:{
+                        color:"#00E676"
+                    }
+                }
+            ],
+
+            dataZoom:[
+
+                {
+                    type:"inside",
+                    start:60,
+                    end:100
+                },
+
+                {
+                    type:"slider",
+                    start:60,
+                    end:100,
+                    height:24,
+                    bottom:20
+                }
+            ],
+
+            series:[
+
+                {
+                    name:"temperature_2m",
+
+                    type:"line",
+
+                    smooth:true,
+
+                    symbol:"none",
+
+                    yAxisIndex:0,
+
+                    lineStyle:{
+                        width:2,
+                        color:"#00B8FF"
+                    },
+
+                    itemStyle:{
+                        color:"#00B8FF"
+                    },
+
+                    markLine:{
+
+                        silent:true,
+
+                        symbol:[
+                            "none",
+                            "none"
+                        ],
+
+                        lineStyle:{
+                            color:"#FFFFFF",
+                            width:2
+                        },
+
+                        label:{
+                            formatter:"ADESSO",
+                            color:"#FFFFFF"
+                        },
+
+                        data:[
+                            {
+                                xAxis:nowIndex
+                            }
+                        ]
+                    },
+
+                    data:temperature
+                },
+
+                {
+                    name:"wind_speed_10m",
+
+                    type:"line",
+
+                    smooth:true,
+
+                    symbol:"none",
+
+                    yAxisIndex:1,
+
+                    lineStyle:{
+                        width:1.5,
+                        color:"#5865FF"
+                    },
+
+                    itemStyle:{
+                        color:"#5865FF"
+                    },
+
+                    data:wind
+                },
+
+                {
+                    name:"rain",
+
+                    type:"bar",
+
+                    yAxisIndex:2,
+
+                    barWidth:"90%",
+
+                    itemStyle:{
+                        color:"#00E676"
+                    },
+
+                    data:rain
+                }
+
+            ]
+
+        }, true);
+
+    }
+    catch(error){
+
+        console.error(error);
+
+    }
+}
+
+loadForecast();
+
+setInterval(
+    loadForecast,
+    15 * 60 * 1000
+);
+
+window.addEventListener(
+    "resize",
+    () => chart.resize()
+);
+
 </script>
 
 </body>
