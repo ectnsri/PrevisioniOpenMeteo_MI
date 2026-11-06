@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Meteo Milano</title>
+
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+
+<style>
+html, body {
+  margin: 0;
+  height: 100%;
+  background: #001129;
+  font-family: Segoe UI, Arial, sans-serif;
+}
+
+#chart {
+  width: 100%;
+  height: 700px;
+}
+</style>
+</head>
+<body>
+
+<div id="chart"></div>
+
+<script>
+
+const apiUrl =
+'https://api.open-meteo.com/v1/ecmwf?latitude=45.4642&longitude=9.1900&hourly=temperature_2m,wind_speed_10m,rain&forecast_days=10';
+
+fetch(apiUrl)
+.then(r => r.json())
+.then(data => {
+
+  const time = data.hourly.time.map(t =>
+      t.replace('T','\n')
+  );
+
+  const temp = data.hourly.temperature_2m;
+  const wind = data.hourly.wind_speed_10m;
+  const rain = data.hourly.rain;
+
+  const chart = echarts.init(
+    document.getElementById('chart')
+  );
+
+  const option = {
+
+    backgroundColor: '#001129',
+
+    title: {
+      text:
+      'Milano - ECMWF Forecast',
+      left: 'center',
+      top: 10,
+      textStyle: {
+        color: '#ffffff',
+        fontSize: 28,
+        fontWeight: 'bold'
+      }
+    },
+
+    tooltip: {
+      trigger: 'axis'
+    },
+
+    legend: {
+      top: 50,
+      textStyle: {
+        color: '#ffffff'
+      },
+      data: [
+        'Temperatura',
+        'Vento',
+        'Pioggia'
+      ]
+    },
+
+    grid: {
+      left: 80,
+      right: 100,
+      top: 100,
+      bottom: 80
+    },
+
+    xAxis: {
+      type: 'category',
+      data: time,
+      axisLine: {
+        lineStyle: {
+          color: '#ffffff'
+        }
+      },
+      axisLabel: {
+        color: '#ffffff',
+        rotate: 45
+      }
+    },
+
+    yAxis: [
+
+      {
+        type: 'value',
+        name: '°C',
+        position: 'left',
+
+        nameTextStyle: {
+          color: '#00B4FF'
+        },
+
+        axisLabel: {
+          color: '#00B4FF'
+        },
+
+        splitLine: {
+          lineStyle: {
+            color: '#4b5563'
+          }
+        }
+      },
+
+      {
+        type: 'value',
+        name: 'km/h',
+        position: 'left',
+        offset: 55,
+
+        axisLabel: {
+          color: '#5A5AFF'
+        },
+
+        nameTextStyle: {
+          color: '#5A5AFF'
+        }
+      },
+
+      {
+        type: 'value',
+        name: 'mm',
+        position: 'right',
+
+        axisLabel: {
+          color: '#00FF7F'
+        },
+
+        nameTextStyle: {
+          color: '#00FF7F'
+        }
+      }
+
+    ],
+
+    dataZoom: [
+      {
+        type: 'inside'
+      },
+      {
+        type: 'slider',
+        height: 25
+      }
+    ],
+
+    series: [
+
+      {
+        name: 'Temperatura',
+        type: 'line',
+        smooth: true,
+        yAxisIndex: 0,
+        symbol: 'none',
+        lineStyle: {
+          width: 3,
+          color: '#00B4FF'
+        },
+        data: temp
+      },
+
+      {
+        name: 'Vento',
+        type: 'line',
+        smooth: true,
+        yAxisIndex: 1,
+        symbol: 'none',
+        lineStyle: {
+          width: 2,
+          color: '#5A5AFF'
+        },
+        data: wind
+      },
+
+      {
+        name: 'Pioggia',
+        type: 'bar',
+        yAxisIndex: 2,
+        itemStyle: {
+          color: '#00E676'
+        },
+        data: rain
+      }
+
+    ]
+  };
+
+  chart.setOption(option);
+
+  window.addEventListener('resize', () => {
+    chart.resize();
+  });
+
+});
+</script>
+
+</body>
+</html>
