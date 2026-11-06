@@ -216,8 +216,8 @@ async function loadForecast(){
                             return d.toLocaleDateString(
                                 "it-IT",
                                 {
-                                  day:"numeric",
-                                  month:"short"
+                                    day:"numeric",
+                                    month:"short"
                                 }
                             );
                         }
@@ -289,6 +289,9 @@ async function loadForecast(){
                     position:"right",
 
                     name:"mm",
+
+                    min: 0,
+                    max: 100,
 
                     axisLabel:{
                         color:"#00E676"
