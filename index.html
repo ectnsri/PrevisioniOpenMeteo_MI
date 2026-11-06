@@ -39,7 +39,7 @@ html, body {
     padding: 12px 20px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.8);
     z-index: 10;
 }
@@ -69,27 +69,45 @@ html, body {
 
 .alert-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
     gap: 10px;
-    max-width: 800px;
 }
 
 .alert-card {
     background: #121212;
     border: 1px solid #333;
     border-radius: 8px;
-    padding: 8px 12px;
-    font-size: 13px;
+    padding: 10px 12px;
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.alert-card-header {
+    font-weight: bold;
+    color: #00B8FF;
+    border-bottom: 1px solid #222;
+    padding-bottom: 4px;
+}
+
+.alert-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.alert-row-day {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
 .badge {
-    padding: 3px 8px;
+    padding: 2px 6px;
     border-radius: 4px;
     font-weight: bold;
-    font-size: 11px;
+    font-size: 10px;
     text-transform: uppercase;
 }
 
@@ -129,7 +147,7 @@ html, body {
     text-decoration: underline;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 800px) {
     .alert-grid {
         grid-template-columns: 1fr;
     }
@@ -194,25 +212,55 @@ async function loadAlerts() {
         const json = await response.json();
         const d = json.data;
 
-        const oggiColore = d.oggi.allerta.colore || "Verde";
-        const domaniColore = d.domani.allerta.colore || "Verde";
-        
         document.getElementById("alert-bulletin-info").innerText = 
             `Bollettino emesso il ${d.bulletin_info.data_bollettino} alle ${d.bulletin_info.ora_bollettino}`;
 
-        document.getElementById("alert-content").innerHTML = `
-            <div class="alert-card">
-                <span>📅 Oggi (${d.bulletin_info.data_oggi}):</span>
-                <span class="badge" style="background:${getColoreSemaforo(oggiColore)}; color:${getColoreTesto(oggiColore)}">${oggiColore}</span>
-            </div>
-            <div class="alert-card">
-                <span>📅 Domani (${d.bulletin_info.data_domani}):</span>
-                <span class="badge" style="background:${getColoreSemaforo(domaniColore)}; color:${getColoreTesto(domaniColore)}">${domaniColore}</span>
-            </div>
-        `;
+        // Estrazione delle tre tipologie di rischio per oggi e domani
+        const oggi = d.oggi;
+        const domani = d.domani;
+
+        const rischi = [
+            {
+                titolo: "🌊 Rischio Idrico",
+                oggiColore: oggi.idrico?.colore || "Verde",
+                domaniColore: domani.idrico?.colore || "Verde"
+            },
+            {
+                titolo: "⛰️ Rischio Idrogeologico",
+                oggiColore: oggi.idrogeologico?.colore || "Verde",
+                domaniColore: domani.idrogeologico?.colore || "Verde"
+            },
+            {
+                titolo: "⚡ Temporali Forti",
+                oggiColore: oggi.temporali?.colore || "Verde",
+                domaniColore: domani.temporali?.colore || "Verde"
+            }
+        ];
+
+        let htmlContent = "";
+        rischi.forEach(r => {
+            htmlContent += `
+                <div class="alert-card">
+                    <div class="alert-card-header">${r.titolo}</div>
+                    <div class="alert-card-body">
+                        <div class="alert-row-day">
+                            <span>Oggi (${d.bulletin_info.data_oggi}):</span>
+                            <span class="badge" style="background:${getColoreSemaforo(r.oggiColore)}; color:${getColoreTesto(r.oggiColore)}">${r.oggiColore}</span>
+                        </div>
+                        <div class="alert-row-day">
+                            <span>Domani (${d.bulletin_info.data_domani}):</span>
+                            <span class="badge" style="background:${getColoreSemaforo(r.domaniColore)}; color:${getColoreTesto(r.domaniColore)}">${r.domaniColore}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        document.getElementById("alert-content").innerHTML = htmlContent;
+
     } catch (err) {
         document.getElementById("alert-content").innerHTML = `
-            <div class="alert-card" style="color: #ff5555; grid-column: span 2;">
+            <div class="alert-card" style="color: #ff5555; grid-column: span 3;">
                 Impossibile caricare le allerte meteo.
             </div>
         `;
@@ -401,9 +449,9 @@ async function loadForecast(){
 loadAlerts();
 loadForecast();
 
-// Aggiornamenti periodici (ogni 15 minuti)
-setInterval(loadForecast, 15 * 60 * 1000);
-setInterval(loadAlerts, 15 * 60 * 1000);
+// Aggiornamenti periodici (ogni 5 minuti)
+setInterval(loadForecast, 5 * 60 * 1000);
+setInterval(loadAlerts, 5 * 60 * 1000);
 
 // Adattamento responsive del grafico
 window.addEventListener("resize", () => chart.resize());
