@@ -9,7 +9,6 @@
 <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 
 <style>
-
 html,
 body{
     margin:0;
@@ -24,7 +23,6 @@ body{
     width:100%;
     height:100vh;
 }
-
 </style>
 </head>
 
@@ -33,7 +31,6 @@ body{
 <div id="chart"></div>
 
 <script>
-
 const LAT = 45.46415362253196;
 const LON = 9.19148029280355;
 const CITY = "Milano";
@@ -43,9 +40,7 @@ const chart = echarts.init(
 );
 
 async function loadForecast(){
-
     try{
-
         const apiUrl =
             `https://api.open-meteo.com/v1/ecmwf?latitude=${LAT}&longitude=${LON}&hourly=temperature_2m,wind_speed_10m,rain&forecast_days=10`;
 
@@ -53,372 +48,274 @@ async function loadForecast(){
         const data = await response.json();
 
         const times = data.hourly.time;
-
-        const temperature =
-            data.hourly.temperature_2m;
-
-        const wind =
-            data.hourly.wind_speed_10m;
-
-        const rain =
-            data.hourly.rain;
+        const temperature = data.hourly.temperature_2m;
+        const wind = data.hourly.wind_speed_10m;
+        const rain = data.hourly.rain;
 
         const now = new Date();
-
-        let nowIndex =
-            times.findIndex(
-                t => new Date(t) > now
-            );
+        let nowIndex = times.findIndex(
+            t => new Date(t) > now
+        );
 
         if(nowIndex < 0){
             nowIndex = times.length - 1;
         }
 
         chart.setOption({
+            backgroundColor: "#000000", // Sfondo nero del grafico
 
-            backgroundColor:"#001129",
+            animation: true,
 
-            animation:true,
-
-            title:[
-
+            title: [
                 {
-                    text:"Previsioni Milano ECMWF",
-
-                    left:"center",
-
-                    top:10,
-
-                    textStyle:{
-                        color:"#FFFFFF",
-                        fontSize:30,
-                        fontWeight:"bold"
+                    text: "Previsioni Milano ECMWF",
+                    left: "center",
+                    top: 10,
+                    textStyle: {
+                        color: "#FFFFFF",
+                        fontSize: 30,
+                        fontWeight: "bold"
                     }
                 },
-
                 {
-                    text:
-                        `${LAT.toFixed(2)}°N ${LON.toFixed(2)}°E`,
-
-                    left:"center",
-
-                    top:50,
-
-                    textStyle:{
-                        color:"#C9D5E5",
-                        fontSize:17,
-                        fontWeight:"normal"
+                    text: `${LAT.toFixed(2)}°N ${LON.toFixed(2)}°E`,
+                    left: "center",
+                    top: 50,
+                    textStyle: {
+                        color: "#C9D5E5",
+                        fontSize: 17,
+                        fontWeight: "normal"
                     }
                 }
-
             ],
 
-            legend:{
-
-                right:15,
-
-                top:"middle",
-
-                orient:"vertical",
-
-                textStyle:{
-                    color:"#FFFFFF"
+            legend: {
+                right: 15,
+                top: "middle",
+                orient: "vertical",
+                textStyle: {
+                    color: "#FFFFFF"
                 },
-
-                data:[
+                data: [
                     "temperature_2m",
                     "wind_speed_10m",
                     "rain"
                 ]
             },
 
-            tooltip:{
-
-                trigger:"axis",
-
-                backgroundColor:"#001129",
-
-                borderColor:"#42526E",
-
-                textStyle:{
-                    color:"#ffffff"
+            tooltip: {
+                trigger: "axis",
+                backgroundColor: "#111111", // Sfondo scuro per il tooltip
+                borderColor: "#42526E",
+                textStyle: {
+                    color: "#ffffff"
                 },
-
-                formatter:function(params){
-
-                    const idx =
-                        params[0].dataIndex;
-
-                    const date =
-                        new Date(times[idx]);
+                formatter: function(params){
+                    const idx = params[0].dataIndex;
+                    const date = new Date(times[idx]);
 
                     return `
                         <b>${date.toLocaleString("it-IT")}</b>
                         <br><br>
-
                         🌡️ Temperatura:
                         <b>${temperature[idx]} °C</b>
-
                         <br>
-
                         🌬️ Vento:
                         <b>${wind[idx]} km/h</b>
-
                         <br>
-
                         🌧️ Pioggia:
                         <b>${rain[idx]} mm</b>
                     `;
                 }
             },
 
-            grid:{
-                left:80,
-                right:140,
-                top:90,
-                bottom:90
+            grid: {
+                left: 80,
+                right: 140,
+                top: 90,
+                bottom: 90
             },
 
-            xAxis:{
-
-                type:"category",
-
-                boundaryGap:false,
-
-                data:times,
-
-                axisLine:{
-                    lineStyle:{
-                        color:"#777"
+            xAxis: {
+                type: "category",
+                boundaryGap: false,
+                data: times,
+                axisLine: {
+                    lineStyle: {
+                        color: "#777"
                     }
                 },
-
-                axisTick:{
-                    show:false
+                axisTick: {
+                    show: false
                 },
-
-                axisLabel:{
-
-                    color:"#E0E0E0",
-
-                    hideOverlap:true,
-
-                    formatter:function(value){
-
-                        const d =
-                            new Date(value);
-
-                        const h =
-                            d.getHours();
+                axisLabel: {
+                    color: "#E0E0E0",
+                    hideOverlap: true,
+                    formatter: function(value){
+                        const d = new Date(value);
+                        const h = d.getHours();
 
                         if(h === 0){
-
                             return d.toLocaleDateString(
                                 "it-IT",
                                 {
-                                    day:"numeric",
-                                    month:"short"
+                                    day: "numeric",
+                                    month: "short"
                                 }
                             );
                         }
-
                         return "";
                     }
                 }
             },
 
-            yAxis:[
-
+            yAxis: [
                 {
-                    type:"value",
-
-                    name:"°C",
-
-                    nameLocation:"middle",
-
-                    nameGap:50,
-
-                    min:function(v){
+                    type: "value",
+                    name: "°C",
+                    nameLocation: "middle",
+                    nameGap: 50,
+                    min: function(v){
                         return Math.floor(v.min - 2);
                     },
-
-                    max:function(v){
+                    max: function(v){
                         return Math.ceil(v.max + 2);
                     },
-
-                    axisLabel:{
-                        color:"#1DB3FF"
+                    axisLabel: {
+                        color: "#1DB3FF"
                     },
-
-                    nameTextStyle:{
-                        color:"#1DB3FF"
+                    nameTextStyle: {
+                        color: "#1DB3FF"
                     },
-
-                    splitLine:{
-                        lineStyle:{
-                            color:"#6c757d"
+                    splitLine: {
+                        lineStyle: {
+                            color: "#222222" // Linee della griglia più scure ed eleganti su sfondo nero
                         }
                     }
                 },
-
                 {
-                    type:"value",
-
-                    position:"left",
-
-                    offset:55,
-
-                    name:"km/h",
-
-                    nameLocation:"middle",
-
-                    nameGap:45,
-
-                    axisLabel:{
-                        color:"#5A5AFF"
+                    type: "value",
+                    position: "left",
+                    offset: 55,
+                    name: "km/h",
+                    nameLocation: "middle",
+                    nameGap: 45,
+                    axisLabel: {
+                        color: "#5A5AFF"
                     },
-
-                    nameTextStyle:{
-                        color:"#5A5AFF"
+                    nameTextStyle: {
+                        color: "#5A5AFF"
+                    },
+                    splitLine: {
+                        show: false
                     }
                 },
-
                 {
-                    type:"value",
-
-                    position:"right",
-
-                    name:"mm",
-
+                    type: "value",
+                    position: "right",
+                    name: "mm",
                     min: 0,
                     max: 50,
-
-                    axisLabel:{
-                        color:"#00E676"
+                    axisLabel: {
+                        color: "#00E676"
                     },
-
-                    nameTextStyle:{
-                        color:"#00E676"
+                    nameTextStyle: {
+                        color: "#00E676"
+                    },
+                    splitLine: {
+                        show: false
                     }
                 }
             ],
 
-            dataZoom:[
-
+            dataZoom: [
                 {
-                    type:"inside",
-                    start:0,
-                    end:40
+                    type: "inside",
+                    start: 0,
+                    end: 40
                 },
-
                 {
-                    type:"slider",
-                    start:0,
-                    end:40,
-                    height:24,
-                    bottom:20
+                    type: "slider",
+                    start: 0,
+                    end: 40,
+                    height: 24,
+                    bottom: 20,
+                    backgroundColor: "#111",
+                    dataBackground: {
+                        lineStyle: { color: "#444" },
+                        areaStyle: { color: "#222" }
+                    },
+                    selectedDataBackground: {
+                        lineStyle: { color: "#00B8FF" },
+                        areaStyle: { color: "#00B8FF" }
+                    }
                 }
             ],
 
-            series:[
-
+            series: [
                 {
-                    name:"temperature_2m",
-
-                    type:"line",
-
-                    smooth:true,
-
-                    symbol:"none",
-
-                    yAxisIndex:0,
-
-                    lineStyle:{
-                        width:2,
-                        color:"#00B8FF"
+                    name: "temperature_2m",
+                    type: "line",
+                    smooth: true,
+                    symbol: "none",
+                    yAxisIndex: 0,
+                    lineStyle: {
+                        width: 2,
+                        color: "#00B8FF"
                     },
-
-                    itemStyle:{
-                        color:"#00B8FF"
+                    itemStyle: {
+                        color: "#00B8FF"
                     },
-
-                    markLine:{
-
-                        silent:true,
-
-                        symbol:[
-                            "none",
-                            "none"
-                        ],
-
-                        lineStyle:{
-                            color:"#FFFFFF",
-                            width:2
+                    markLine: {
+                        silent: true,
+                        symbol: ["none", "none"],
+                        lineStyle: {
+                            color: "#FFFFFF",
+                            width: 2
                         },
-
-                        label:{
-                            formatter:"ADESSO",
-                            color:"#FFFFFF"
+                        label: {
+                            formatter: "ADESSO",
+                            color: "#FFFFFF"
                         },
-
-                        data:[
+                        data: [
                             {
-                                xAxis:nowIndex
+                                xAxis: nowIndex
                             }
                         ]
                     },
-
-                    data:temperature
+                    data: temperature
                 },
-
                 {
-                    name:"wind_speed_10m",
-
-                    type:"line",
-
-                    smooth:true,
-
-                    symbol:"none",
-
-                    yAxisIndex:1,
-
-                    lineStyle:{
-                        width:1.5,
-                        color:"#5865FF"
+                    name: "wind_speed_10m",
+                    type: "line",
+                    smooth: true,
+                    symbol: "none",
+                    yAxisIndex: 1,
+                    lineStyle: {
+                        width: 1.5,
+                        color: "#5865FF"
                     },
-
-                    itemStyle:{
-                        color:"#5865FF"
+                    itemStyle: {
+                        color: "#5865FF"
                     },
-
-                    data:wind
+                    data: wind
                 },
-
                 {
-                    name:"rain",
-
-                    type:"bar",
-
-                    yAxisIndex:2,
-
-                    barWidth:"90%",
-
-                    itemStyle:{
-                        color:"#00E676"
+                    name: "rain",
+                    type: "bar",
+                    yAxisIndex: 2,
+                    barWidth: "90%",
+                    itemStyle: {
+                        color: "#00E676"
                     },
-
-                    data:rain
+                    data: rain
                 }
-
             ]
-
         }, true);
 
     }
     catch(error){
-
         console.error(error);
-
     }
 }
 
@@ -433,7 +330,6 @@ window.addEventListener(
     "resize",
     () => chart.resize()
 );
-
 </script>
 
 </body>
