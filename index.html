@@ -251,11 +251,11 @@ async function loadAlerts() {
                     <div class="alert-card-header">${r.titolo}</div>
                     <div class="alert-card-body">
                         <div class="alert-row-day">
-                            <span>Oggi (${d.bulletin_info.data_oggi}):</span>
+                            <span>${d.bulletin_info.data_oggi}:</span>
                             <span class="badge" style="background:${getColoreSemaforo(r.oggiColore)}; color:${getColoreTesto(r.oggiColore)}">${r.oggiColore}</span>
                         </div>
                         <div class="alert-row-day">
-                            <span>Domani (${d.bulletin_info.data_domani}):</span>
+                            <span>${d.bulletin_info.data_domani}:</span>
                             <span class="badge" style="background:${getColoreSemaforo(r.domaniColore)}; color:${getColoreTesto(r.domaniColore)}">${r.domaniColore}</span>
                         </div>
                     </div>
