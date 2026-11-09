@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -437,7 +436,7 @@ async function loadForecast(){
                         silent: true,
                         symbol: ["none", "none"],
                         lineStyle: { color: "#FFFFFF", width: 2 },
-                        label: { formatter: "ADESSO", color: "#FFFFFF" },
+                        label: { formatter: "ADESSO", color: "$FFFFFF" },
                         data: [{ xAxis: nowIndex }]
                     },
                     data: temperature
@@ -460,11 +459,7 @@ async function loadForecast(){
                     itemStyle: { color: "#00E676" },
                     data: precip
                 },
-                // Frecce stile spillo con indicazione di provenienza del vento e rotazioni coerenti:
-                // - Vento da Sud (180°): Punta in alto (nessuna rotazione aggiuntiva)
-                // - Vento da Nord (0°): Punta in basso (rotazione di 180°)
-                // - Vento da Est (90°): Punta a sinistra/Ovest (rotazione antioraria di 90°)
-                // - Vento da Ovest (270°): Punta a destra/Est (rotazione oraria di 90°)
+                // Frecce stile Open-Meteo standard (banderuola inclinata)
                 {
                     name: "Direzione Vento",
                     type: "custom",
@@ -474,21 +469,19 @@ async function loadForecast(){
                         const x = coord[0];
                         const y = coord[1];
                         const idx = params.dataIndex;
-                        const angle = windDir[idx]; // Gradi di provenienza meteo standard (0° = N, 90° = E, 180° = S, 270° = W)
-
-                        // Applicazione coerente dell'offset geometrico basato sulla provenienza
-                        const adjustedAngle = (angle + 180) % 360;
+                        const angle = windDir[idx]; // Angolo diretto nativo
 
                         return {
                             type: "path",
                             shape: {
-                                pathData: "M 0 6 L -2 -6 L 0 -4 L 2 -6 Z"
+                                // Tracciato SVG standard stile banderuola Open-Meteo
+                                pathData: "M -4 4 L 4 -4 M 4 -4 L -1 -4 M 4 -4 L 4 1"
                             },
                             position: [x, y],
-                            rotation: (adjustedAngle * Math.PI) / 180,
+                            rotation: (angle * Math.PI) / 180,
                             style: api.style({
-                                fill: "#ffffff",
-                                stroke: "#ffffff"
+                                stroke: "#ffffff",
+                                lineWidth: 1.5
                             })
                         };
                     },
@@ -515,5 +508,3 @@ window.addEventListener("resize", () => chart.resize());
 
 </body>
 </html>
-
-```
