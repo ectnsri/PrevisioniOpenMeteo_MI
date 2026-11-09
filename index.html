@@ -301,9 +301,6 @@ async function loadForecast(){
             nowIndex = times.length - 1;
         }
 
-        // Mappatura dei dati per le freccette in alto (indice temporale + gradi direzione)
-        const windArrowData = times.map((t, idx) => [idx, windDir[idx]]);
-
         chart.setOption({
             backgroundColor: "#000000",
             animation: true,
@@ -321,7 +318,7 @@ async function loadForecast(){
                 right: 20,
                 top: 8,
                 textStyle: { color: "#FFFFFF" },
-                data: ["temperature_2m", "wind_speed_10m", "rain", "Direzione Vento"]
+                data: ["temperature_2m", "wind_speed_10m", "rain"]
             },
             tooltip: {
                 trigger: "axis",
@@ -348,7 +345,7 @@ async function loadForecast(){
             grid: {
                 left: 60,
                 right: 80,
-                top: 80,
+                top: 70,
                 bottom: 70
             },
             xAxis: {
@@ -451,36 +448,6 @@ async function loadForecast(){
                     barWidth: "90%",
                     itemStyle: { color: "#00E676" },
                     data: rain
-                },
-                {
-                    name: "Direzione Vento",
-                    type: "custom",
-                    renderItem: function (params, api) {
-                        const x = api.coord([api.value(0), 0])[0];
-                        const y = api.getCoord([0, 0])[1] - api.getHeight() * 0.72; // Posizionamento in alto sopra la griglia
-                        const deg = api.value(1);
-
-                        return {
-                            type: 'group',
-                            children: [{
-                                type: 'path',
-                                shape: {
-                                    pathData: 'M12 2 L6 10 L11 10 L11 22 L13 22 L13 10 L18 10 Z',
-                                    x: -6,
-                                    y: -8,
-                                    width: 12,
-                                    height: 16
-                                },
-                                position: [x, y],
-                                rotation: (deg * Math.PI) / 180,
-                                style: {
-                                    fill: '#ffffff',
-                                    opacity: 0.95
-                                }
-                            }]
-                        };
-                    },
-                    data: windArrowData
                 }
             ]
         }, true);
