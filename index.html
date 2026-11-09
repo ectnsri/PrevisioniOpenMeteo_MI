@@ -448,7 +448,7 @@ async function loadForecast(){
                     itemStyle: { color: "#00E676" },
                     data: precip
                 },
-                // Frecce posizionate in alto sopra i 50 mm con orientamento corretto in base alla provenienza del vento
+                // Frecce posizionate in alto sopra i 50 mm con rotazione verso la direzione in cui soffia il vento
                 {
                     name: "Direzione Vento",
                     type: "custom",
@@ -466,7 +466,7 @@ async function loadForecast(){
                                 pathData: "M0,-6 L4,6 L0,3 L-4,6 Z"
                             },
                             position: [x, y],
-                            rotation: (angle * Math.PI) / 180,
+                            rotation: (((angle + 180) % 360) * Math.PI) / 180,
                             style: api.style({
                                 fill: "#ffffff",
                                 stroke: "#ffffff"
