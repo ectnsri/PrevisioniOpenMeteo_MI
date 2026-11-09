@@ -436,7 +436,7 @@ async function loadForecast(){
                         silent: true,
                         symbol: ["none", "none"],
                         lineStyle: { color: "#FFFFFF", width: 2 },
-                        label: { formatter: "ADESSO", color: "$FFFFFF" },
+                        label: { formatter: "ADESSO", color: "#FFFFFF" },
                         data: [{ xAxis: nowIndex }]
                     },
                     data: temperature
@@ -459,7 +459,7 @@ async function loadForecast(){
                     itemStyle: { color: "#00E676" },
                     data: precip
                 },
-                // Frecce stile Open-Meteo standard (banderuola inclinata)
+                // Frecce stile spillo con orientamento e rotazioni corrette
                 {
                     name: "Direzione Vento",
                     type: "custom",
@@ -469,19 +469,18 @@ async function loadForecast(){
                         const x = coord[0];
                         const y = coord[1];
                         const idx = params.dataIndex;
-                        const angle = windDir[idx]; // Angolo diretto nativo
+                        const angle = windDir[idx];
 
                         return {
                             type: "path",
                             shape: {
-                                // Tracciato SVG standard stile banderuola Open-Meteo
-                                pathData: "M -4 4 L 4 -4 M 4 -4 L -1 -4 M 4 -4 L 4 1"
+                                pathData: "M 0 6 L -2 -6 L 0 -4 L 2 -6 Z"
                             },
                             position: [x, y],
-                            rotation: (angle * Math.PI) / 180,
+                            rotation: (((angle + 180) % 360) * Math.PI) / 180,
                             style: api.style({
-                                stroke: "#ffffff",
-                                lineWidth: 1.5
+                                fill: "#ffffff",
+                                stroke: "#ffffff"
                             })
                         };
                     },
