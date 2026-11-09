@@ -203,7 +203,7 @@ function getColoreSemaforo(colore){
     if(colore === "rosso") return "#d32f2f";
     if(colore === "arancione") return "#ef6c00";
     if(colore === "giallo") return "#fbc02d";
-    return "#39ff14"; // Verde di default
+    return "#39ff14";
 }
 
 function getColoreTesto(colore){
@@ -283,7 +283,6 @@ const chart = echarts.init(chartDom);
 
 async function loadForecast(){
     try{
-        // URL aggiornato secondo la richiesta
         const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&hourly=temperature_2m,wind_speed_10m,wind_direction_10m,precipitation&models=ecmwf_ifs&past_days=1&forecast_days=10`;
 
         const response = await fetch(apiUrl);
@@ -300,9 +299,6 @@ async function loadForecast(){
         if(nowIndex < 0){
             nowIndex = times.length - 1;
         }
-
-        // Strutturazione dati per le frecce del vento
-        const windArrowData = times.map((t, index) => [index, windDir[index]]);
 
         chart.setOption({
             backgroundColor: "#000000",
@@ -348,39 +344,27 @@ async function loadForecast(){
             grid: {
                 left: 60,
                 right: 80,
-                top: 80,
+                top: 70,
                 bottom: 70
             },
-            xAxis: [
-                {
-                    type: "category",
-                    boundaryGap: false,
-                    data: times,
-                    axisLine: { lineStyle: { color: "#777" } },
-                    axisTick: { show: false },
-                    axisLabel: {
-                        color: "#E0E0E0",
-                        hideOverlap: true,
-                        formatter: function(value){
-                            const d = new Date(value);
-                            if(d.getHours() === 0){
-                                return d.toLocaleDateString("it-IT", { day: "numeric", month: "short" });
-                            }
-                            return "";
+            xAxis: {
+                type: "category",
+                boundaryGap: false,
+                data: times,
+                axisLine: { lineStyle: { color: "#777" } },
+                axisTick: { show: false },
+                axisLabel: {
+                    color: "#E0E0E0",
+                    hideOverlap: true,
+                    formatter: function(value){
+                        const d = new Date(value);
+                        if(d.getHours() === 0){
+                            return d.toLocaleDateString("it-IT", { day: "numeric", month: "short" });
                         }
+                        return "";
                     }
-                },
-                // Guida in alto per le frecce della direzione del vento
-                {
-                    type: "category",
-                    position: "top",
-                    boundaryGap: false,
-                    data: times,
-                    axisLine: { lineStyle: { color: "#333" } },
-                    axisTick: { show: false },
-                    axisLabel: { show: false }
                 }
-            ],
+            },
             yAxis: [
                 {
                     type: "value",
@@ -429,33 +413,6 @@ async function loadForecast(){
                 }
             ],
             series: [
-                // Serie Custom per disegnare le frecce del vento sulla guida in alto
-                {
-                    name: "Direzione Vento",
-                    type: "custom",
-                    xAxisIndex: 1,
-                    renderItem: function (params, api) {
-                        const x = api.coord([api.value(0), 0])[0];
-                        const y = api.coord([api.value(0), 0])[1];
-                        const angle = api.value(1);
-
-                        return {
-                            type: "path",
-                            shape: {
-                                // Sagoma a freccia
-                                pathData: "M0,-6 L4,6 L0,3 L-4,6 Z"
-                            },
-                            position: [x, y],
-                            rotation: (angle * Math.PI) / 180,
-                            style: api.style({
-                                fill: "#ffffff",
-                                stroke: "#ffffff"
-                            })
-                        };
-                    },
-                    data: windArrowData,
-                    z: 10
-                },
                 {
                     name: "temperature_2m",
                     type: "line",
@@ -490,6 +447,33 @@ async function loadForecast(){
                     barWidth: "90%",
                     itemStyle: { color: "#00E676" },
                     data: precip
+                },
+                // Serie Custom per posizionare le frecce del vento in alto (sull'asse y della temperatura)
+                {
+                    name: "Direzione Vento",
+                    type: "custom",
+                    yAxisIndex: 0,
+                    renderItem: function (params, api) {
+                        const x = api.coord([api.value(0), api.range.y[0]])[0];
+                        // Posizionato in alto, leggermente sotto il bordo superiore dell'area grafica
+                        const y = api.coord([api.value(0), api.yaxis.getMax()])[1] + 15;
+                        const angle = windDir[params.dataIndex];
+
+                        return {
+                            type: "path",
+                            shape: {
+                                pathData: "M0,-6 L4,6 L0,3 L-4,6 Z"
+                            },
+                            position: [x, y],
+                            rotation: (angle * Math.PI) / 180,
+                            style: api.style({
+                                fill: "#ffffff",
+                                stroke: "#ffffff"
+                            })
+                        };
+                    },
+                    data: times.map((t, idx) => [idx, wind[idx]]),
+                    z: 20
                 }
             ]
         }, true);
@@ -503,11 +487,9 @@ async function loadForecast(){
 loadAlerts();
 loadForecast();
 
-// Aggiornamenti periodici (ogni 5 minuti)
 setInterval(loadForecast, 5 * 60 * 1000);
 setInterval(loadAlerts, 5 * 60 * 1000);
 
-// Adattamento responsive del grafico
 window.addEventListener("resize", () => chart.resize());
 </script>
 
