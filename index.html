@@ -478,7 +478,7 @@ async function loadForecast(){
                                 pathData: "M 0 5 L -2 -5 L 0 -3 L 2 -5 Z"
                             },
                             position: [x, y],
-                            rotation: (angle * Math.PI) / 180,
+                            rotation: (((360 - angle) % 360) * Math.PI) / 180,
                             style: api.style({
                                 fill: "#ffffff",
                                 stroke: "#ffffff"
