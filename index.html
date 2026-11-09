@@ -459,7 +459,7 @@ async function loadForecast(){
                     itemStyle: { color: "#00E676" },
                     data: precip
                 },
-                // Frecce minimali e sottili sopra i 50 mm con rotazione corretta
+                // Frecce stile spillo con orientamento e rotazioni corrette
                 {
                     name: "Direzione Vento",
                     type: "custom",
@@ -469,15 +469,23 @@ async function loadForecast(){
                         const x = coord[0];
                         const y = coord[1];
                         const idx = params.dataIndex;
-                        const angle = windDir[idx];
+                        const angle = windDir[idx]; // 0° = Nord, 90° = Est, 180° = Sud, 270° = Ovest
+
+                        // Regola di rotazione:
+                        // - Sud (180°): Nessuna rotazione aggiuntiva (punta in alto)
+                        // - Est (90°): -90° (antiorario) -> punta a sinistra (Ovest)
+                        // - Ovest (270°): +90° (orario) -> punta a destra (Est)
+                        // - Nord (0°): +180° -> punta in basso
+                        // Formula unificata equivalente: (angle + 180) % 360
+                        const adjustedAngle = (angle + 180) % 360;
 
                         return {
                             type: "path",
                             shape: {
-                                pathData: "M 0 5 L -3 -5 L 0 -3 L 3 -5 Z"
+                                pathData: "M 0 6 L -2 -6 L 0 -4 L 2 -6 Z"
                             },
                             position: [x, y],
-                            rotation: (((angle) % 360) * Math.PI) / 180,
+                            rotation: (adjustedAngle * Math.PI) / 180,
                             style: api.style({
                                 fill: "#ffffff",
                                 stroke: "#ffffff"
