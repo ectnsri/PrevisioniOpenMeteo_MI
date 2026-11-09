@@ -300,8 +300,8 @@ async function loadForecast(){
             nowIndex = times.length - 1;
         }
 
-        // Freccette del vento ad altezza fissa in alto (stile Open-Meteo)
-        const windArrowData = times.map((t, idx) => [idx, windDir[idx], wind[idx]]);
+        // Dati per le freccette in alto: abbinano l'indice temporale alla direzione in gradi
+        const windArrowData = times.map((t, idx) => [idx, windDir[idx]]);
 
         chart.setOption({
             backgroundColor: "#000000",
@@ -320,7 +320,7 @@ async function loadForecast(){
                 right: 20,
                 top: 8,
                 textStyle: { color: "#FFFFFF" },
-                data: ["Temperatura (°C)", "Vento (km/h)", "Pioggia (mm)", "Direzione Vento"]
+                data: ["temperature_2m", "wind_speed_10m", "rain", "Direzione Vento"]
             },
             tooltip: {
                 trigger: "axis",
@@ -417,7 +417,7 @@ async function loadForecast(){
             ],
             series: [
                 {
-                    name: "Temperatura (°C)",
+                    name: "temperature_2m",
                     type: "line",
                     smooth: true,
                     symbol: "none",
@@ -434,7 +434,7 @@ async function loadForecast(){
                     data: temperature
                 },
                 {
-                    name: "Vento (km/h)",
+                    name: "wind_speed_10m",
                     type: "line",
                     smooth: true,
                     symbol: "none",
@@ -444,7 +444,7 @@ async function loadForecast(){
                     data: wind
                 },
                 {
-                    name: "Pioggia (mm)",
+                    name: "rain",
                     type: "bar",
                     yAxisIndex: 2,
                     barWidth: "90%",
@@ -456,7 +456,7 @@ async function loadForecast(){
                     type: "custom",
                     renderItem: function (params, api) {
                         const x = api.coord([api.value(0), 0])[0];
-                        const y = api.getCoord([0, 0])[1] - api.getHeight() * 0.72; // Posizionamento in alto sopra la griglia
+                        const y = api.getCoord([0, 0])[1] - api.getHeight() * 0.72; // Posizione fissa in alto
                         const deg = api.value(1);
 
                         return {
@@ -464,7 +464,6 @@ async function loadForecast(){
                             children: [{
                                 type: 'path',
                                 shape: {
-                                    // Freccia sottile stile Open-Meteo puntata verso l'alto (0° / Nord)
                                     pathData: 'M12 2 L6 10 L11 10 L11 22 L13 22 L13 10 L18 10 Z',
                                     x: -6,
                                     y: -8,
