@@ -251,11 +251,11 @@ async function loadAlerts() {
                     <div class="alert-card-header">${r.titolo}</div>
                     <div class="alert-card-body">
                         <div class="alert-row-day">
-                            <span>${d.bulletin_info.data_oggi}:</span>
+                            <span>Oggi (${d.bulletin_info.data_oggi}):</span>
                             <span class="badge" style="background:${getColoreSemaforo(r.oggiColore)}; color:${getColoreTesto(r.oggiColore)}">${r.oggiColore}</span>
                         </div>
                         <div class="alert-row-day">
-                            <span>${d.bulletin_info.data_domani}:</span>
+                            <span>Domani (${d.bulletin_info.data_domani}):</span>
                             <span class="badge" style="background:${getColoreSemaforo(r.domaniColore)}; color:${getColoreTesto(r.domaniColore)}">${r.domaniColore}</span>
                         </div>
                     </div>
@@ -283,6 +283,7 @@ const chart = echarts.init(chartDom);
 
 async function loadForecast(){
     try{
+        // Aggiornato a wind_speed_10m e wind_direction_10m
         const apiUrl = `https://api.open-meteo.com/v1/ecmwf?latitude=${LAT}&longitude=${LON}&hourly=temperature_2m,wind_speed_10m,wind_direction_10m,rain&forecast_days=10`;
 
         const response = await fetch(apiUrl);
@@ -300,7 +301,7 @@ async function loadForecast(){
             nowIndex = times.length - 1;
         }
 
-        // Mappatura per la serie custom in alto: unisce indice temporale e direzione in gradi
+        // Mappatura dei dati per le freccette in alto (indice temporale + gradi direzione)
         const windArrowData = times.map((t, idx) => [idx, windDir[idx]]);
 
         chart.setOption({
@@ -412,4 +413,94 @@ async function loadForecast(){
                     bottom: 5,
                     backgroundColor: "#111",
                     dataBackground: { lineStyle: { color: "#444" }, areaStyle: { color: "#222" } },
-                    selectedDataBackground: { lineStyle: { color
+                    selectedDataBackground: { lineStyle: { color: "#00B8FF" }, areaStyle: { color: "#00B8FF" } }
+                }
+            ],
+            series: [
+                {
+                    name: "temperature_2m",
+                    type: "line",
+                    smooth: true,
+                    symbol: "none",
+                    yAxisIndex: 0,
+                    lineStyle: { width: 2, color: "#00B8FF" },
+                    itemStyle: { color: "#00B8FF" },
+                    markLine: {
+                        silent: true,
+                        symbol: ["none", "none"],
+                        lineStyle: { color: "#FFFFFF", width: 2 },
+                        label: { formatter: "ADESSO", color: "#FFFFFF" },
+                        data: [{ xAxis: nowIndex }]
+                    },
+                    data: temperature
+                },
+                {
+                    name: "wind_speed_10m",
+                    type: "line",
+                    smooth: true,
+                    symbol: "none",
+                    yAxisIndex: 1,
+                    lineStyle: { width: 1.5, color: "#5865FF" },
+                    itemStyle: { color: "#5865FF" },
+                    data: wind
+                },
+                {
+                    name: "rain",
+                    type: "bar",
+                    yAxisIndex: 2,
+                    barWidth: "90%",
+                    itemStyle: { color: "#00E676" },
+                    data: rain
+                },
+                {
+                    name: "Direzione Vento",
+                    type: "custom",
+                    renderItem: function (params, api) {
+                        const x = api.coord([api.value(0), 0])[0];
+                        const y = api.getCoord([0, 0])[1] - api.getHeight() * 0.72; // Posizionamento in alto sopra la griglia
+                        const deg = api.value(1);
+
+                        return {
+                            type: 'group',
+                            children: [{
+                                type: 'path',
+                                shape: {
+                                    pathData: 'M12 2 L6 10 L11 10 L11 22 L13 22 L13 10 L18 10 Z',
+                                    x: -6,
+                                    y: -8,
+                                    width: 12,
+                                    height: 16
+                                },
+                                position: [x, y],
+                                rotation: (deg * Math.PI) / 180,
+                                style: {
+                                    fill: '#ffffff',
+                                    opacity: 0.95
+                                }
+                            }]
+                        };
+                    },
+                    data: windArrowData
+                }
+            ]
+        }, true);
+
+    } catch(error){
+        console.error("Errore nel caricamento delle previsioni:", error);
+    }
+}
+
+// Inizializzazione
+loadAlerts();
+loadForecast();
+
+// Aggiornamenti periodici (ogni 5 minuti)
+setInterval(loadForecast, 5 * 60 * 1000);
+setInterval(loadAlerts, 5 * 60 * 1000);
+
+// Adattamento responsive del grafico
+window.addEventListener("resize", () => chart.resize());
+</script>
+
+</body>
+</html>
