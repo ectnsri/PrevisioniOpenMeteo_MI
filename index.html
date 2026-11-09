@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -459,7 +460,11 @@ async function loadForecast(){
                     itemStyle: { color: "#00E676" },
                     data: precip
                 },
-                // Frecce stile spillo con orientamento e rotazioni corrette
+                // Frecce stile spillo con indicazione di provenienza del vento e rotazioni coerenti:
+                // - Vento da Sud (180°): Punta in alto (nessuna rotazione aggiuntiva)
+                // - Vento da Nord (0°): Punta in basso (rotazione di 180°)
+                // - Vento da Est (90°): Punta a sinistra/Ovest (rotazione antioraria di 90°)
+                // - Vento da Ovest (270°): Punta a destra/Est (rotazione oraria di 90°)
                 {
                     name: "Direzione Vento",
                     type: "custom",
@@ -469,14 +474,9 @@ async function loadForecast(){
                         const x = coord[0];
                         const y = coord[1];
                         const idx = params.dataIndex;
-                        const angle = windDir[idx]; // 0° = Nord, 90° = Est, 180° = Sud, 270° = Ovest
+                        const angle = windDir[idx]; // Gradi di provenienza meteo standard (0° = N, 90° = E, 180° = S, 270° = W)
 
-                        // Regola di rotazione:
-                        // - Sud (180°): Nessuna rotazione aggiuntiva (punta in alto)
-                        // - Est (90°): -90° (antiorario) -> punta a sinistra (Ovest)
-                        // - Ovest (270°): +90° (orario) -> punta a destra (Est)
-                        // - Nord (0°): +180° -> punta in basso
-                        // Formula unificata equivalente: (angle + 180) % 360
+                        // Applicazione coerente dell'offset geometrico basato sulla provenienza
                         const adjustedAngle = (angle + 180) % 360;
 
                         return {
@@ -515,3 +515,5 @@ window.addEventListener("resize", () => chart.resize());
 
 </body>
 </html>
+
+```
