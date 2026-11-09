@@ -267,7 +267,6 @@ async function loadAlerts() {
         document.getElementById("alert-content").innerHTML = htmlContent;
 
     } catch (err) {
-        // Fallback visivo in caso di blocco CORS o offline
         document.getElementById("alert-bulletin-info").innerText = "Stato: Nessuna criticità rilevata";
         document.getElementById("alert-content").innerHTML = `
             <div class="alert-card">
