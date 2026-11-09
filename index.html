@@ -344,27 +344,37 @@ async function loadForecast(){
             grid: {
                 left: 60,
                 right: 80,
-                top: 70,
+                top: 80,
                 bottom: 70
             },
-            xAxis: {
-                type: "category",
-                boundaryGap: false,
-                data: times,
-                axisLine: { lineStyle: { color: "#777" } },
-                axisTick: { show: false },
-                axisLabel: {
-                    color: "#E0E0E0",
-                    hideOverlap: true,
-                    formatter: function(value){
-                        const d = new Date(value);
-                        if(d.getHours() === 0){
-                            return d.toLocaleDateString("it-IT", { day: "numeric", month: "short" });
+            xAxis: [
+                {
+                    type: "category",
+                    boundaryGap: false,
+                    data: times,
+                    axisLine: { lineStyle: { color: "#777" } },
+                    axisTick: { show: false },
+                    axisLabel: {
+                        color: "#E0E0E0",
+                        hideOverlap: true,
+                        formatter: function(value){
+                            const d = new Date(value);
+                            if(d.getHours() === 0){
+                                return d.toLocaleDateString("it-IT", { day: "numeric", month: "short" });
+                            }
+                            return "";
                         }
-                        return "";
                     }
+                },
+                // Asse X superiore di servizio per posizionare le frecce esattamente al limite superiore
+                {
+                    type: "category",
+                    position: "top",
+                    boundaryGap: false,
+                    data: times,
+                    show: false
                 }
-            },
+            ],
             yAxis: [
                 {
                     type: "value",
@@ -448,16 +458,18 @@ async function loadForecast(){
                     itemStyle: { color: "#00E676" },
                     data: precip
                 },
-                // Serie Custom per posizionare le frecce del vento in alto (sull'asse y della temperatura)
+                // Serie Custom per le frecce del vento agganciate in alto tramite il secondo asse X
                 {
                     name: "Direzione Vento",
                     type: "custom",
+                    xAxisIndex: 1,
                     yAxisIndex: 0,
                     renderItem: function (params, api) {
-                        const x = api.coord([api.value(0), api.range.y[0]])[0];
-                        // Posizionato in alto, leggermente sotto il bordo superiore dell'area grafica
-                        const y = api.coord([api.value(0), api.yaxis.getMax()])[1] + 15;
-                        const angle = windDir[params.dataIndex];
+                        const coord = api.coord([api.value(0), 0]);
+                        const x = coord[0];
+                        const y = coord[1] + 12; // Posizionate esattamente sotto il bordo superiore dell'area del grafico
+                        const idx = params.dataIndex;
+                        const angle = windDir[idx];
 
                         return {
                             type: "path",
