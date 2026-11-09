@@ -459,7 +459,7 @@ async function loadForecast(){
                     itemStyle: { color: "#00E676" },
                     data: precip
                 },
-                // Frecce stile spillo con orientamento e rotazioni corrette
+                // Frecce stile spillo nativamente rivolte in basso (0° = punta in basso, 180° = punta in alto)
                 {
                     name: "Direzione Vento",
                     type: "custom",
@@ -469,15 +469,16 @@ async function loadForecast(){
                         const x = coord[0];
                         const y = coord[1];
                         const idx = params.dataIndex;
-                        const angle = windDir[idx];
+                        const angle = windDir[idx]; // Angolo diretto restituito dall'API meteo
 
                         return {
                             type: "path",
                             shape: {
-                                pathData: "M 0 6 L -2 -6 L 0 -4 L 2 -6 Z"
+                                // Spillo minimale con punta rivolta nativamente in basso (Y positiva)
+                                pathData: "M 0 5 L -2 -5 L 0 -3 L 2 -5 Z"
                             },
                             position: [x, y],
-                            rotation: (((angle + 180) % 360) * Math.PI) / 180,
+                            rotation: (angle * Math.PI) / 180,
                             style: api.style({
                                 fill: "#ffffff",
                                 stroke: "#ffffff"
