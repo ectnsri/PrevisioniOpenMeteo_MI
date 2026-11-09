@@ -251,11 +251,11 @@ async function loadAlerts() {
                     <div class="alert-card-header">${r.titolo}</div>
                     <div class="alert-card-body">
                         <div class="alert-row-day">
-                            <span>Oggi (${d.bulletin_info.data_oggi}):</span>
+                            <span>${d.bulletin_info.data_oggi}:</span>
                             <span class="badge" style="background:${getColoreSemaforo(r.oggiColore)}; color:${getColoreTesto(r.oggiColore)}">${r.oggiColore}</span>
                         </div>
                         <div class="alert-row-day">
-                            <span>Domani (${d.bulletin_info.data_domani}):</span>
+                            <span>${d.bulletin_info.data_domani}:</span>
                             <span class="badge" style="background:${getColoreSemaforo(r.domaniColore)}; color:${getColoreTesto(r.domaniColore)}">${r.domaniColore}</span>
                         </div>
                     </div>
@@ -283,7 +283,6 @@ const chart = echarts.init(chartDom);
 
 async function loadForecast(){
     try{
-        // Aggiornato a wind_speed_10m e wind_direction_10m
         const apiUrl = `https://api.open-meteo.com/v1/ecmwf?latitude=${LAT}&longitude=${LON}&hourly=temperature_2m,wind_speed_10m,wind_direction_10m,rain&forecast_days=10`;
 
         const response = await fetch(apiUrl);
@@ -300,6 +299,9 @@ async function loadForecast(){
         if(nowIndex < 0){
             nowIndex = times.length - 1;
         }
+
+        // Mappatura per la serie custom in alto: unisce indice temporale e direzione in gradi
+        const windArrowData = times.map((t, idx) => [idx, windDir[idx]]);
 
         chart.setOption({
             backgroundColor: "#000000",
@@ -318,7 +320,7 @@ async function loadForecast(){
                 right: 20,
                 top: 8,
                 textStyle: { color: "#FFFFFF" },
-                data: ["temperature_2m", "wind_speed_10m", "rain"]
+                data: ["temperature_2m", "wind_speed_10m", "rain", "Direzione Vento"]
             },
             tooltip: {
                 trigger: "axis",
@@ -345,7 +347,7 @@ async function loadForecast(){
             grid: {
                 left: 60,
                 right: 80,
-                top: 70,
+                top: 80,
                 bottom: 70
             },
             xAxis: {
@@ -410,64 +412,4 @@ async function loadForecast(){
                     bottom: 5,
                     backgroundColor: "#111",
                     dataBackground: { lineStyle: { color: "#444" }, areaStyle: { color: "#222" } },
-                    selectedDataBackground: { lineStyle: { color: "#00B8FF" }, areaStyle: { color: "#00B8FF" } }
-                }
-            ],
-            series: [
-                {
-                    name: "temperature_2m",
-                    type: "line",
-                    smooth: true,
-                    symbol: "none",
-                    yAxisIndex: 0,
-                    lineStyle: { width: 2, color: "#00B8FF" },
-                    itemStyle: { color: "#00B8FF" },
-                    markLine: {
-                        silent: true,
-                        symbol: ["none", "none"],
-                        lineStyle: { color: "#FFFFFF", width: 2 },
-                        label: { formatter: "ADESSO", color: "#FFFFFF" },
-                        data: [{ xAxis: nowIndex }]
-                    },
-                    data: temperature
-                },
-                {
-                    name: "wind_speed_10m",
-                    type: "line",
-                    smooth: true,
-                    symbol: "none",
-                    yAxisIndex: 1,
-                    lineStyle: { width: 1.5, color: "#5865FF" },
-                    itemStyle: { color: "#5865FF" },
-                    data: wind
-                },
-                {
-                    name: "rain",
-                    type: "bar",
-                    yAxisIndex: 2,
-                    barWidth: "90%",
-                    itemStyle: { color: "#00E676" },
-                    data: rain
-                }
-            ]
-        }, true);
-
-    } catch(error){
-        console.error("Errore nel caricamento delle previsioni:", error);
-    }
-}
-
-// Inizializzazione
-loadAlerts();
-loadForecast();
-
-// Aggiornamenti periodici (ogni 5 minuti)
-setInterval(loadForecast, 5 * 60 * 1000);
-setInterval(loadAlerts, 5 * 60 * 1000);
-
-// Adattamento responsive del grafico
-window.addEventListener("resize", () => chart.resize());
-</script>
-
-</body>
-</html>
+                    selectedDataBackground: { lineStyle: { color
