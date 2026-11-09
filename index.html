@@ -9,7 +9,7 @@
 <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 
 <style>
-* {
+*, *::before, *::after {
     box-sizing: border-box;
 }
 
@@ -188,6 +188,14 @@ html, body {
 </div>
 
 <script>
+// --- CONVERSIONE GRADI VENTO IN DIREZIONE CARDINALE ---
+function getWindDirection(degrees) {
+    if (degrees === undefined || degrees === null) return "";
+    const directions = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
+    const index = Math.round((degrees % 360) / 22.5);
+    return directions[index % 16];
+}
+
 // --- COLORI SEMAFORO ALLERTE ---
 function getColoreSemaforo(colore){
     if(!colore) return "#39ff14";
@@ -215,7 +223,6 @@ async function loadAlerts() {
         document.getElementById("alert-bulletin-info").innerText = 
             `Bollettino emesso il ${d.bulletin_info.data_bollettino} alle ${d.bulletin_info.ora_bollettino}`;
 
-        // Estrazione delle tre tipologie di rischio per oggi e domani
         const oggi = d.oggi;
         const domani = d.domani;
 
@@ -233,7 +240,7 @@ async function loadAlerts() {
             {
                 titolo: "⚡ Temporali Forti",
                 oggiColore: oggi.temporali?.colore || "Verde",
-                domaniColore: domani.temporali?.colore || "Verde"
+                domaniColore: domani.idrogeologico?.colore || "Verde"
             }
         ];
 
@@ -276,7 +283,8 @@ const chart = echarts.init(chartDom);
 
 async function loadForecast(){
     try{
-        const apiUrl = `https://api.open-meteo.com/v1/ecmwf?latitude=${LAT}&longitude=${LON}&hourly=temperature_2m,wind_speed_10m,rain&forecast_days=10`;
+        // Aggiornato a wind_speed_10m e wind_direction_10m
+        const apiUrl = `https://api.open-meteo.com/v1/ecmwf?latitude=${LAT}&longitude=${LON}&hourly=temperature_2m,wind_speed_10m,wind_direction_10m,rain&forecast_days=10`;
 
         const response = await fetch(apiUrl);
         const data = await response.json();
@@ -284,6 +292,7 @@ async function loadForecast(){
         const times = data.hourly.time;
         const temperature = data.hourly.temperature_2m;
         const wind = data.hourly.wind_speed_10m;
+        const windDir = data.hourly.wind_direction_10m;
         const rain = data.hourly.rain;
 
         const now = new Date();
@@ -319,12 +328,15 @@ async function loadForecast(){
                 formatter: function(params){
                     const idx = params[0].dataIndex;
                     const date = new Date(times[idx]);
+                    const deg = windDir[idx];
+                    const cardinal = getWindDirection(deg);
+
                     return `
                         <b>${date.toLocaleString("it-IT")}</b>
                         <br><br>
                         🌡️ Temperatura: <b>${temperature[idx]} °C</b>
                         <br>
-                        🌬️ Vento: <b>${wind[idx]} km/h</b>
+                        🌬️ Vento (10m): <b>${wind[idx]} km/h (${cardinal} - ${deg}°)</b>
                         <br>
                         🌧️ Pioggia: <b>${rain[idx]} mm</b>
                     `;
