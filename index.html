@@ -469,16 +469,21 @@ async function loadForecast(){
                         const x = coord[0];
                         const y = coord[1];
                         const idx = params.dataIndex;
-                        const angle = windDir[idx]; // Angolo diretto restituito dall'API meteo
-
+                        const angle = windDir[idx]; // 0° = N, 90° = E, 180° = S, 270° = W
+                
                         return {
                             type: "path",
                             shape: {
-                                // Spillo minimale con punta rivolta nativamente in basso (Y positiva)
-                                pathData: "M 0 5 L -2 -5 L 0 -3 L 2 -5 Z"
+                                // Spillo nativo verso L'ALTO (punta in alto a 0°)
+                                pathData: "M 0 -6 L -2 6 L 0 4 L 2 6 Z"
                             },
                             position: [x, y],
-                            rotation: (((360 - angle) % 360) * Math.PI) / 180,
+                            // +180° ruota in senso orario: 
+                            // N (0°+180° = 180°) -> punta GIÙ
+                            // E (90°+180° = 270°) -> punta a SINISTRA
+                            // S (180°+180° = 360°) -> punta SU
+                            // W (270°+180° = 450° = 90°) -> punta a DESTRA
+                            rotation: (((angle + 180) % 360) * Math.PI) / 180,
                             style: api.style({
                                 fill: "#ffffff",
                                 stroke: "#ffffff"
