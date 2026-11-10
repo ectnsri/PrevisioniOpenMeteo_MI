@@ -483,7 +483,7 @@ async function loadForecast(){
                             // E (90°+180° = 270°) -> punta a SINISTRA
                             // S (180°+180° = 360°) -> punta SU
                             // W (270°+180° = 450° = 90°) -> punta a DESTRA
-                            rotation: (((angle + 180) % 360) * Math.PI) / 180,
+                            rotation: (((540 - angle) % 360) * Math.PI) / 180,
                             style: api.style({
                                 fill: "#ffffff",
                                 stroke: "#ffffff"
