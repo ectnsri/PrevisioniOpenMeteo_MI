@@ -294,17 +294,33 @@ const chart = echarts.init(chartDom);
 
 async function loadForecast(){
     try{
-        const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&hourly=temperature_2m,wind_speed_10m,wind_gusts_10m,wind_direction_10m,precipitation&models=icon_eu&past_days=1&forecast_days=10`;
+        const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&hourly=temperature_2m,wind_speed_10m,wind_gusts_10m,wind_direction_10m,precipitation&models=icon_eu&past_days=1&forecast_days=6`;
 
         const response = await fetch(apiUrl);
         const data = await response.json();
 
-        const times = data.hourly.time;
-        const temperature = data.hourly.temperature_2m;
-        const wind = data.hourly.wind_speed_10m;
-        const gusts = data.hourly.wind_gusts_10m;
-        const windDir = data.hourly.wind_direction_10m;
-        const precip = data.hourly.precipitation;
+        // Taglia automaticamente la serie al termine dei dati effettivamente disponibili,
+        // evitando le ore/giorni futuri che il modello restituisce come null.
+        const rawTimes = data.hourly.time;
+        const rawTemperature = data.hourly.temperature_2m;
+        const rawWind = data.hourly.wind_speed_10m;
+        const rawGusts = data.hourly.wind_gusts_10m;
+        const rawWindDir = data.hourly.wind_direction_10m;
+        const rawPrecip = data.hourly.precipitation;
+
+        const lastValidIndex = rawTimes.reduce((last, t, i) => {
+            const valid = [rawTemperature[i], rawWind[i], rawGusts[i], rawWindDir[i], rawPrecip[i]]
+                .every(v => v !== null && v !== undefined && Number.isFinite(Number(v)));
+            return valid ? i : last;
+        }, -1);
+        if (lastValidIndex < 0) throw new Error("Nessun dato previsivo valido disponibile");
+
+        const times = rawTimes.slice(0, lastValidIndex + 1);
+        const temperature = rawTemperature.slice(0, lastValidIndex + 1);
+        const wind = rawWind.slice(0, lastValidIndex + 1);
+        const gusts = rawGusts.slice(0, lastValidIndex + 1);
+        const windDir = rawWindDir.slice(0, lastValidIndex + 1);
+        const precip = rawPrecip.slice(0, lastValidIndex + 1);
 
         const now = new Date();
         let nowIndex = times.findIndex(t => new Date(t) > now);
@@ -417,11 +433,11 @@ async function loadForecast(){
                 }
             ],
             dataZoom: [
-                { type: "inside", start: 0, end: 50 },
+                { type: "inside", start: 0, end: 100 },
                 {
                     type: "slider",
                     start: 0,
-                    end: 50,
+                    end: 100,
                     height: 18,
                     bottom: 5,
                     backgroundColor: "#111",
