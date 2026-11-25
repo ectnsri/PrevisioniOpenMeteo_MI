@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Meteo & Allerte Milano - ICON-EU & Protezione Civile</title>
+<title>Meteo, Radar & Allerte Milano - ICON-EU & Protezione Civile</title>
 
 <!-- ECharts CDN -->
 <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
@@ -17,18 +17,18 @@ html, body {
     margin: 0;
     padding: 0;
     width: 100%;
-    height: 100%;
+    min-height: 100%;
     background: #000000;
     font-family: Segoe UI, Arial, sans-serif;
     color: #ffffff;
     overflow-x: hidden;
 }
 
-/* Layout generale a griglia verticale */
+/* Layout generale verticale */
 .app-container {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    min-height: 100vh;
     width: 100%;
 }
 
@@ -129,16 +129,96 @@ html, body {
     text-transform: uppercase;
 }
 
-/* Contenitore Grafico Centrale */
-#chart-container {
+/* Area centrale: Grafico ICON-EU + Mappa Radar */
+.main-workspace {
     flex-grow: 1;
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 12px;
+    padding: 12px 20px;
+    min-height: 540px;
+}
+
+.panel-box {
+    background: #080808;
+    border: 1px solid #222;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 460px;
+}
+
+#chart-container {
     width: 100%;
+    height: 100%;
+    min-height: 460px;
     position: relative;
 }
 
 #chart {
     width: 100%;
     height: 100%;
+}
+
+.radar-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: #0e0e0e;
+    border-bottom: 1px solid #222;
+    font-size: 12px;
+    gap: 8px;
+}
+
+.radar-toolbar-title {
+    font-weight: 600;
+    color: #00B8FF;
+}
+
+.radar-toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.radar-toolbar button,
+.radar-toolbar a {
+    background: #161b22;
+    color: #e6edf3;
+    border: 1px solid #30363d;
+    border-radius: 4px;
+    padding: 3px 8px;
+    font-size: 11px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.radar-toolbar button:hover,
+.radar-toolbar a:hover {
+    border-color: #00B8FF;
+    color: #00B8FF;
+}
+
+/* Contenitore scalabile dell'iframe radar */
+.radar-viewport {
+    position: relative;
+    flex-grow: 1;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #050505;
+}
+
+.radar-iframe {
+    --radar-scale: 1;
+    width: calc(100% / var(--radar-scale));
+    height: calc(100% / var(--radar-scale));
+    transform: scale(var(--radar-scale));
+    transform-origin: 0 0;
+    border: 0;
+    display: block;
 }
 
 /* Piè di pagina integrato */
@@ -163,6 +243,15 @@ html, body {
 
 .footer-sources a:hover {
     text-decoration: underline;
+}
+
+@media (max-width: 1050px) {
+    .main-workspace {
+        grid-template-columns: 1fr;
+    }
+    .panel-box {
+        height: 520px;
+    }
 }
 
 @media (max-width: 800px) {
@@ -197,21 +286,64 @@ html, body {
         </div>
     </div>
 
-    <!-- Grafico Previsioni ICON-EU -->
-    <div id="chart-container">
-        <div id="chart"></div>
-    </div>
+    <!-- Area centrale: Grafico ICON-EU + Radar -->
+    <main class="main-workspace">
+        <!-- Grafico Previsioni ICON-EU -->
+        <section class="panel-box" aria-label="Grafico previsioni ICON-EU">
+            <div id="chart-container">
+                <div id="chart"></div>
+            </div>
+        </section>
+
+        <!-- Mappa Radar Incorporata e Scalabile -->
+        <section class="panel-box" aria-label="Mappa radar meteo">
+            <div class="radar-toolbar">
+                <span class="radar-toolbar-title">🛰️ Radar Meteo (Milano)</span>
+                <div class="radar-toolbar-actions">
+                    <button type="button" onclick="adjustRadarScale(-0.1)" title="Riduci scala">-</button>
+                    <span id="radar-scale-label">100%</span>
+                    <button type="button" onclick="adjustRadarScale(0.1)" title="Aumenta scala">+</button>
+                    <a href="https://www.meteoeradar.it/radar-meteo/suisse/4251695?center=45.48,9.2&zoom=10.45"
+                       target="_blank" rel="noopener noreferrer">
+                        Apri esterno
+                    </a>
+                </div>
+            </div>
+            <div class="radar-viewport">
+                <iframe
+                    id="radar-frame"
+                    class="radar-iframe"
+                    src="https://www.meteoeradar.it/radar-meteo/suisse/4251695?center=45.48,9.2&zoom=10.45"
+                    loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade"
+                    title="Mappa radar meteo"
+                    allowfullscreen>
+                </iframe>
+            </div>
+        </section>
+    </main>
 
     <!-- Footer Fonti -->
     <div class="footer-sources">
         <div>📈 Dati Previsioni: <a href="https://open-meteo.com/" target="_blank">Open-Meteo (Modello ICON-EU)</a> — Fuso orario: <b>Roma / Berlino / Amsterdam (CET/CEST)</b></div>
         <div>🛡️ Dati Allerte: <a href="https://allertameteo.app/" target="_blank">AllertaMeteo.app / Protezione Civile Lombardia</a></div>
+        <div>🛰️ Radar: <a href="https://www.meteoeradar.it/" target="_blank" rel="noopener noreferrer">Meteo &amp; Radar</a></div>
     </div>
 
 </div>
 
 <script>
 const TIMEZONE = "Europe/Rome"; // Identico fuso orario di Roma, Berlino e Amsterdam (CET/CEST)
+
+// --- SCALATURA DINAMICA RADAR ---
+let radarScale = 1.0;
+function adjustRadarScale(delta) {
+    radarScale = Math.min(1.5, Math.max(0.6, Number((radarScale + delta).toFixed(2))));
+    const frame = document.getElementById("radar-frame");
+    const label = document.getElementById("radar-scale-label");
+    if (frame) frame.style.setProperty("--radar-scale", radarScale);
+    if (label) label.textContent = `${Math.round(radarScale * 100)}%`;
+}
 
 // --- GESTIONE ORA ESATTA ROMA / BERLINO / AMSTERDAM ---
 function getRomeDateParts(date = new Date()) {
@@ -229,24 +361,20 @@ function getRomeDateParts(date = new Date()) {
     formatter.formatToParts(date).forEach(p => {
         if (p.type !== "literal") parts[p.type] = p.value;
     });
-    // Normalizza eventuale "24" a mezzanotte
     if (parts.hour === "24") parts.hour = "00";
     return parts;
 }
 
-// Restituisce stringa ISO locale nel fuso Europe/Rome es. "2026-11-25T11:33"
 function getRomeIsoMinute(date = new Date()) {
     const p = getRomeDateParts(date);
     return `${p.year}-${p.month}-${p.day}T${p.hour}:${p.minute}`;
 }
 
-// Restituisce ora piena corrente nel fuso Europe/Rome es. "2026-11-25T11:00"
 function getRomeCurrentHourKey(date = new Date()) {
     const p = getRomeDateParts(date);
     return `${p.year}-${p.month}-${p.day}T${p.hour}:00`;
 }
 
-// Aggiorna orologio a schermo ogni secondo
 function updateClockDisplay() {
     const p = getRomeDateParts(new Date());
     const el = document.getElementById("cet-clock");
@@ -255,9 +383,7 @@ function updateClockDisplay() {
     }
 }
 
-// Formatta una stringa oraria Open-Meteo ("YYYY-MM-DDTHH:MM" già in Europe/Rome) in italiano
 function formatForecastTimestamp(isoStr) {
-    // isoStr è già espressa in Europe/Rome, la parsiamo senza shift di fuso locale del browser
     const [datePart, timePart] = isoStr.split("T");
     const [year, month, day] = datePart.split("-");
     return `${day}/${month}/${year}, ${timePart}`;
@@ -275,7 +401,6 @@ function formatAxisDayLabel(isoStr) {
     });
 }
 
-// --- CONVERSIONE GRADI VENTO IN DIREZIONE CARDINALE ---
 function getWindDirection(degrees) {
     if (degrees === undefined || degrees === null) return "";
     const directions = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
@@ -283,7 +408,6 @@ function getWindDirection(degrees) {
     return directions[index % 16];
 }
 
-// --- COLORI SEMAFORO ALLERTE ---
 function getColoreSemaforo(colore){
     if(!colore) return "#39ff14";
     colore = colore.toLowerCase();
@@ -300,7 +424,6 @@ function getColoreTesto(colore){
     return "#ffffff";
 }
 
-// --- CARICAMENTO ALLERTE (CON GESTIONE ERRORI SICURA) ---
 async function loadAlerts() {
     try {
         const response = await fetch("https://allertameteo.app/api/alert/Milano", { cache: "no-store" });
@@ -308,7 +431,7 @@ async function loadAlerts() {
         const json = await response.json();
         const d = json.data;
 
-        document.getElementById("alert-bulletin-info").innerText = 
+        document.getElementById("alert-bulletin-info").innerText =
             `Bollettino emesso il ${d.bulletin_info.data_bollettino} alle ${d.bulletin_info.ora_bollettino}`;
 
         const oggi = d.oggi;
@@ -372,28 +495,23 @@ async function loadAlerts() {
     }
 }
 
-// --- CARICAMENTO GRAFICO ICON-EU ---
 const LAT = 45.46415362253196;
 const LON = 9.19148029280355;
 
 const chartDom = document.getElementById("chart");
 const chart = echarts.init(chartDom);
-let cachedTimes = [];
 let isFirstRender = true;
 
-function computeNowIndex(times) {
-    if (!times || times.length === 0) return 0;
+function computeNowValue(times) {
+    if (!times || times.length === 0) return null;
     const currentHourKey = getRomeCurrentHourKey(new Date());
-    // Cerca corrispondenza esatta con l'ora corrente di Roma/Berlino/Amsterdam
-    let idx = times.indexOf(currentHourKey);
-    if (idx >= 0) return idx;
+    if (times.includes(currentHourKey)) return currentHourKey;
 
-    // Fallback: prima fascia oraria successiva o uguale all'istante corrente
     const nowIso = getRomeIsoMinute(new Date());
-    idx = times.findIndex(t => t >= nowIso);
-    if (idx > 0) return idx - 1;
-    if (idx === 0) return 0;
-    return times.length - 1;
+    const idx = times.findIndex(t => t >= nowIso);
+    if (idx > 0) return times[idx - 1];
+    if (idx === 0) return times[0];
+    return times[times.length - 1];
 }
 
 function getNowLabelText() {
@@ -403,7 +521,6 @@ function getNowLabelText() {
 
 async function loadForecast(){
     try{
-        // timezone=Europe%2FRome garantisce che tutti i timestamp siano allineati a Roma/Berlino/Amsterdam
         const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&hourly=temperature_2m,wind_speed_10m,wind_gusts_10m,wind_direction_10m,precipitation&models=icon_eu&past_days=1&forecast_days=6&timezone=Europe%2FRome`;
 
         const response = await fetch(apiUrl, { cache: "no-store" });
@@ -430,11 +547,9 @@ async function loadForecast(){
         const windDir = rawWindDir.slice(0, lastValidIndex + 1);
         const precip = rawPrecip.slice(0, lastValidIndex + 1);
 
-        cachedTimes = times;
-        const nowIndex = computeNowIndex(times);
+        const nowValue = computeNowValue(times);
         const nowLabel = getNowLabelText();
 
-        // Preserva lo zoom corrente dell'utente durante gli aggiornamenti automatici ogni minuto
         let zoomStart = 0;
         let zoomEnd = 100;
         if (!isFirstRender) {
@@ -454,13 +569,13 @@ async function loadForecast(){
                 top: 8,
                 textStyle: {
                     color: "#FFFFFF",
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: "bold"
                 }
             },
             legend: {
                 right: 20,
-                top: 8,
+                top: 36,
                 textStyle: { color: "#FFFFFF" },
                 data: ["temperature_2m", "wind_speed_10m", "wind_gusts_10m", "precipitation"]
             },
@@ -489,8 +604,8 @@ async function loadForecast(){
             },
             grid: {
                 left: 60,
-                right: 80,
-                top: 80,
+                right: 65,
+                top: 90,
                 bottom: 70
             },
             xAxis: {
@@ -566,13 +681,13 @@ async function loadForecast(){
                     yAxisIndex: 0,
                     lineStyle: { width: 2, color: "#00B8FF" },
                     itemStyle: { color: "#00B8FF" },
-                    markLine: {
+                    markLine: nowValue ? {
                         silent: true,
                         symbol: ["none", "none"],
                         lineStyle: { color: "#FFFFFF", width: 2 },
                         label: { formatter: nowLabel, color: "#FFFFFF" },
-                        data: [{ xAxis: nowIndex }]
-                    },
+                        data: [{ xAxis: nowValue }]
+                    } : undefined,
                     data: temperature
                 },
                 {
@@ -608,12 +723,12 @@ async function loadForecast(){
                     type: "custom",
                     yAxisIndex: 2,
                     renderItem: function (params, api) {
-                        const coord = api.coord([api.value(0), 65]); 
+                        const coord = api.coord([api.value(0), 65]);
                         const x = coord[0];
                         const y = coord[1];
                         const idx = params.dataIndex;
                         const angle = windDir[idx];
-                
+
                         return {
                             type: "path",
                             shape: {
@@ -640,15 +755,12 @@ async function loadForecast(){
     }
 }
 
-// Inizializzazione immediata al caricamento / ricarica della pagina
 updateClockDisplay();
 loadAlerts();
 loadForecast();
 
-// Aggiornamento orologio visivo ogni secondo
 setInterval(updateClockDisplay, 1000);
 
-// Aggiornamento dinamico completo ogni minuto (60.000 ms)
 setInterval(() => {
     loadForecast();
     loadAlerts();
