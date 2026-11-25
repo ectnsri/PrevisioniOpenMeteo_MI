@@ -445,18 +445,6 @@ async function loadForecast(){
                     selectedDataBackground: { lineStyle: { color: "#00B8FF" }, areaStyle: { color: "#00B8FF" } }
                 }
             ],
-            visualMap: {
-                type: "piecewise",
-                show: false,
-                seriesIndex: 1,
-                dimension: 0,
-                pieces: [
-                    { min: 0, max: 19.9, color: "#22C55E" },
-                    { min: 20, max: 39.9, color: "#FACC15" },
-                    { min: 40, max: 54.9, color: "#F97316" },
-                    { min: 55, max: 70, color: "#EF4444" }
-                ]
-            },
             series: [
                 {
                     name: "temperature_2m",
@@ -481,7 +469,8 @@ async function loadForecast(){
                     smooth: true,
                     symbol: "none",
                     yAxisIndex: 1,
-                    lineStyle: { width: 2.5 },
+                    lineStyle: { width: 2.5, color: "#5865FF" },
+                    itemStyle: { color: "#5865FF" },
                     data: wind
                 },
                 {
