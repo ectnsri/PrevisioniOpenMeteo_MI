@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Meteo & Allerte Milano - ECMWF & Protezione Civile</title>
+<title>Meteo & Allerte Milano - ICON-EU & Protezione Civile</title>
 
 <!-- ECharts CDN -->
 <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
@@ -174,14 +174,14 @@ html, body {
         </div>
     </div>
 
-    <!-- Grafico Previsioni ECMWF -->
+    <!-- Grafico Previsioni ICON-EU -->
     <div id="chart-container">
         <div id="chart"></div>
     </div>
 
     <!-- Footer Fonti -->
     <div class="footer-sources">
-        <div>📈 Dati Previsioni: <a href="https://open-meteo.com/" target="_blank">Open-Meteo (Modello ECMWF)</a>[cite: 1]</div>
+        <div>📈 Dati Previsioni: <a href="https://open-meteo.com/" target="_blank">Open-Meteo (Modello ICON-EU)</a></div>
         <div>🛡️ Dati Allerte: <a href="https://allertameteo.app/" target="_blank">AllertaMeteo.app / Protezione Civile Lombardia</a>[cite: 1]</div>
     </div>
 
@@ -285,7 +285,7 @@ async function loadAlerts() {
     }
 }
 
-// --- CARICAMENTO GRAFICO ECMWF ---
+// --- CARICAMENTO GRAFICO ICON-EU ---
 const LAT = 45.46415362253196;
 const LON = 9.19148029280355;
 
@@ -294,7 +294,7 @@ const chart = echarts.init(chartDom);
 
 async function loadForecast(){
     try{
-        const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&hourly=temperature_2m,wind_speed_10m,wind_direction_10m,precipitation&models=ecmwf_ifs&past_days=1&forecast_days=10`;
+        const apiUrl = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&hourly=temperature_2m,wind_speed_10m,wind_gusts_10m,wind_direction_10m,precipitation&models=icon_eu&past_days=1&forecast_days=10`;
 
         const response = await fetch(apiUrl);
         const data = await response.json();
@@ -302,6 +302,7 @@ async function loadForecast(){
         const times = data.hourly.time;
         const temperature = data.hourly.temperature_2m;
         const wind = data.hourly.wind_speed_10m;
+        const gusts = data.hourly.wind_gusts_10m;
         const windDir = data.hourly.wind_direction_10m;
         const precip = data.hourly.precipitation;
 
@@ -315,7 +316,7 @@ async function loadForecast(){
             backgroundColor: "#000000",
             animation: true,
             title: {
-                text: "Previsioni Milano (ECMWF)",
+                text: "Previsioni Milano (ICON-EU)",
                 left: "center",
                 top: 8,
                 textStyle: {
@@ -328,7 +329,7 @@ async function loadForecast(){
                 right: 20,
                 top: 8,
                 textStyle: { color: "#FFFFFF" },
-                data: ["temperature_2m", "wind_speed_10m", "precipitation"]
+                data: ["temperature_2m", "wind_speed_10m", "wind_gusts_10m", "precipitation"]
             },
             tooltip: {
                 trigger: "axis",
@@ -346,7 +347,9 @@ async function loadForecast(){
                         <br><br>
                         🌡️ Temperatura: <b>${temperature[idx]} °C</b>
                         <br>
-                        🌬️ Vento (10m): <b>${wind[idx]} km/h (${cardinal} - ${deg}°)</b>
+                        🌬️ Vento medio (10m): <b>${wind[idx]} km/h (${cardinal} - ${deg}°)</b>
+                        <br>
+                        💨 Raffiche: <b>${gusts[idx]} km/h</b>
                         <br>
                         🌧️ Precipitazioni: <b>${precip[idx]} mm</b>
                     `;
@@ -393,6 +396,9 @@ async function loadForecast(){
                     position: "left",
                     offset: 40,
                     name: "km/h",
+                    min: 0,
+                    max: 70,
+                    interval: 10,
                     nameLocation: "middle",
                     nameGap: 30,
                     axisLabel: { color: "#5A5AFF" },
@@ -404,7 +410,7 @@ async function loadForecast(){
                     position: "right",
                     name: "mm",
                     min: 0,
-                    max: 60,
+                    max: 70,
                     axisLabel: { color: "#00E676" },
                     nameTextStyle: { color: "#00E676" },
                     splitLine: { show: false }
@@ -423,6 +429,18 @@ async function loadForecast(){
                     selectedDataBackground: { lineStyle: { color: "#00B8FF" }, areaStyle: { color: "#00B8FF" } }
                 }
             ],
+            visualMap: {
+                type: "piecewise",
+                show: false,
+                seriesIndex: 1,
+                dimension: 0,
+                pieces: [
+                    { min: 0, max: 19.9, color: "#22C55E" },
+                    { min: 20, max: 39.9, color: "#FACC15" },
+                    { min: 40, max: 54.9, color: "#F97316" },
+                    { min: 55, max: 70, color: "#EF4444" }
+                ]
+            },
             series: [
                 {
                     name: "temperature_2m",
@@ -447,9 +465,18 @@ async function loadForecast(){
                     smooth: true,
                     symbol: "none",
                     yAxisIndex: 1,
-                    lineStyle: { width: 1.5, color: "#5865FF" },
-                    itemStyle: { color: "#5865FF" },
+                    lineStyle: { width: 2.5 },
                     data: wind
+                },
+                {
+                    name: "wind_gusts_10m",
+                    type: "line",
+                    smooth: true,
+                    symbol: "none",
+                    yAxisIndex: 1,
+                    lineStyle: { width: 1.5, color: "#FFFFFF", type: "dashed" },
+                    itemStyle: { color: "#FFFFFF" },
+                    data: gusts
                 },
                 {
                     name: "precipitation",
@@ -465,7 +492,7 @@ async function loadForecast(){
                     type: "custom",
                     yAxisIndex: 2,
                     renderItem: function (params, api) {
-                        const coord = api.coord([api.value(0), 55]); 
+                        const coord = api.coord([api.value(0), 65]); 
                         const x = coord[0];
                         const y = coord[1];
                         const idx = params.dataIndex;
