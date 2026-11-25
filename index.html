@@ -306,12 +306,12 @@ html, body {
         <!-- Mappa Radar Windy Incorporata e Scalabile -->
         <section class="panel-box" aria-label="Mappa radar meteo Windy">
             <div class="radar-toolbar">
-                <span class="radar-toolbar-title">🛰️ Radar Windy (45.382, 9.110 · Z11)</span>
+                <span class="radar-toolbar-title">🛰️ Radar Windy (45.4, 9.15 · Z11)</span>
                 <div class="radar-toolbar-actions">
                     <button type="button" onclick="adjustRadarScale(-0.1)" title="Riduci scala">-</button>
                     <span id="radar-scale-label">100%</span>
                     <button type="button" onclick="adjustRadarScale(0.1)" title="Aumenta scala">+</button>
-                    <a href="https://www.windy.com/it/-Radar-meteo-radar?radar,45.382,9.110"
+                    <a href="https://www.windy.com/it/-Radar-meteo-radar?radar,45.4,9.15"
                        target="_blank" rel="noopener noreferrer">
                         Apri su Windy
                     </a>
@@ -1402,7 +1402,7 @@ async function loadForecast(){
                     nameLocation: "middle",
                     nameGap: 35,
                     min: v => -10,
-                    max: v => 45,
+                    max: v => 40,
                     axisLabel: { color: "#1DB3FF" },
                     nameTextStyle: { color: "#1DB3FF" },
                     splitLine: { lineStyle: { color: "#222222" } }
@@ -1413,7 +1413,7 @@ async function loadForecast(){
                     offset: 40,
                     name: "km/h",
                     min: 0,
-                    max: 70,
+                    max: 50,
                     interval: 10,
                     nameLocation: "middle",
                     nameGap: 30,
@@ -1426,7 +1426,7 @@ async function loadForecast(){
                     position: "right",
                     name: "mm",
                     min: 0,
-                    max: 50,
+                    max: 35,
                     axisLabel: { color: "#00E676" },
                     nameTextStyle: { color: "#00E676" },
                     splitLine: { show: false }
