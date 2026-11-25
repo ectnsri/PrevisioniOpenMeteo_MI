@@ -628,8 +628,8 @@ async function loadForecast(){
                     name: "°C",
                     nameLocation: "middle",
                     nameGap: 35,
-                    min: v => Math.floor(v.min - 2),
-                    max: v => Math.ceil(v.max + 2),
+                    min: v => -10,
+                    max: v => 45,
                     axisLabel: { color: "#1DB3FF" },
                     nameTextStyle: { color: "#1DB3FF" },
                     splitLine: { lineStyle: { color: "#222222" } }
