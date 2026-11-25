@@ -303,7 +303,7 @@ html, body {
                     <button type="button" onclick="adjustRadarScale(-0.1)" title="Riduci scala">-</button>
                     <span id="radar-scale-label">100%</span>
                     <button type="button" onclick="adjustRadarScale(0.1)" title="Aumenta scala">+</button>
-                    <a href="https://www.windy.com/it/-Radar-meteo-radar?radar,45.449,9.237,10"
+                    <a href="https://www.windy.com/it/-Radar-meteo-radar?radar,45.532,8.802,11"
                        target="_blank" rel="noopener noreferrer">
                         Apri su Windy
                     </a>
@@ -569,7 +569,7 @@ async function loadForecast(){
                 top: 8,
                 textStyle: {
                     color: "#FFFFFF",
-                    fontSize: 18,
+                    fontSize: 16,
                     fontWeight: "bold"
                 }
             },
@@ -577,7 +577,7 @@ async function loadForecast(){
                 right: 20,
                 top: 36,
                 textStyle: { color: "#FFFFFF" },
-                data: ["temperature_2m", "wind_speed_10m", "wind_gusts_10m", "precipitation"]
+                data: ["temperatura 2m", "velocità vento 10m", "raffiche 10m", "precipitazioni"]
             },
             tooltip: {
                 trigger: "axis",
@@ -653,7 +653,7 @@ async function loadForecast(){
                     position: "right",
                     name: "mm",
                     min: 0,
-                    max: 70,
+                    max: 50,
                     axisLabel: { color: "#00E676" },
                     nameTextStyle: { color: "#00E676" },
                     splitLine: { show: false }
