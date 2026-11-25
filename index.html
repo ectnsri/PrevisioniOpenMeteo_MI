@@ -251,7 +251,7 @@ function updateClockDisplay() {
     const p = getRomeDateParts(new Date());
     const el = document.getElementById("cet-clock");
     if (el) {
-        el.textContent = `🕒 ${p.day}/${p.month}/${p.year} ${p.hour}:${p.minute}:${p.second} (Roma · Berlino · Amsterdam)`;
+        el.textContent = ` ${p.day}/${p.month}/${p.year} ${p.hour}:${p.minute}:${p.second} `;
     }
 }
 
