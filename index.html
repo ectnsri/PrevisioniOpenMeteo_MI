@@ -313,7 +313,7 @@ html, body {
                 <iframe
                     id="radar-frame"
                     class="radar-iframe"
-                    src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=%C2%B0C&metricWind=km/h&zoom=11&overlay=radar&product=radar&level=surface&lat=45.395&lon=9.120&detailLat=45.395&detailLon=9.120&marker=true"
+                    src="https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=mm&metricTemp=%C2%B0C&metricWind=km/h&zoom=11&overlay=radar&product=radar&level=surface&lat=45.395&lon=9.120&detailLat=45.395&detailLon=9.120&marker=false"
                     loading="lazy"
                     referrerpolicy="no-referrer-when-downgrade"
                     title="Mappa radar meteo Windy"
@@ -566,7 +566,7 @@ async function loadForecast(){
             title: {
                 text: "Previsioni Milano (ICON-EU)",
                 left: "center",
-                top: 8,
+                top: 6,
                 textStyle: {
                     color: "#FFFFFF",
                     fontSize: 16,
@@ -574,10 +574,10 @@ async function loadForecast(){
                 }
             },
             legend: {
-                right: 20,
-                top: 36,
-                textStyle: { color: "#FFFFFF" },
-                data: ["temperatura 2m", "velocità vento 10m", "raffiche 10m", "precipitazioni"]
+                left: "center",
+                top: 28,
+                textStyle: { color: "#FFFFFF", fontSize: 11 },
+                data: ["temperature_2m", "wind_speed_10m", "wind_gusts_10m", "precipitation"]
             },
             tooltip: {
                 trigger: "axis",
@@ -605,7 +605,7 @@ async function loadForecast(){
             grid: {
                 left: 60,
                 right: 65,
-                top: 90,
+                top: 95,
                 bottom: 70
             },
             xAxis: {
@@ -640,7 +640,7 @@ async function loadForecast(){
                     offset: 40,
                     name: "km/h",
                     min: 0,
-                    max: 40,
+                    max: 60,
                     interval: 10,
                     nameLocation: "middle",
                     nameGap: 30,
@@ -653,7 +653,8 @@ async function loadForecast(){
                     position: "right",
                     name: "mm",
                     min: 0,
-                    max: 50,
+                    max: 40,
+                    interval: 10,
                     axisLabel: { color: "#00E676" },
                     nameTextStyle: { color: "#00E676" },
                     splitLine: { show: false }
@@ -723,7 +724,7 @@ async function loadForecast(){
                     type: "custom",
                     yAxisIndex: 1,
                     renderItem: function (params, api) {
-                        const coord = api.coord([api.value(0), 37]);
+                        const coord = api.coord([api.value(0), 56]);
                         const x = coord[0];
                         const y = coord[1];
                         const idx = params.dataIndex;
