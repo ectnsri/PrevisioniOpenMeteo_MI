@@ -36,7 +36,7 @@ html, body {
 #alert-banner {
     background: #0a0a0a;
     border-bottom: 1px solid #222;
-    padding: 7px 14px;
+    padding: 12px 20px;
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -111,10 +111,9 @@ html, body {
     text-transform: uppercase;
 }
 
-/* Grafico meteo nella parte superiore */
+/* Contenitore Grafico Centrale */
 #chart-container {
-    flex: 1 1 0;
-    min-height: 0;
+    flex-grow: 1;
     width: 100%;
     position: relative;
 }
@@ -124,74 +123,11 @@ html, body {
     height: 100%;
 }
 
-/* Pannello idrometri: terzo inferiore dello schermo, 3 righe x 2 colonne */
-#hydro-panel {
-    flex: 0 0 33vh;
-    min-height: 210px;
-    max-height: 38vh;
-    width: 100%;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-template-rows: repeat(3, minmax(0, 1fr));
-    gap: 5px;
-    padding: 5px 8px;
-    background: #080808;
-    border-top: 1px solid #333;
-    overflow: hidden;
-}
-
-.hydro-card {
-    min-width: 0;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    background: #111;
-    border: 1px solid #303030;
-    border-radius: 5px;
-}
-
-.hydro-title {
-    flex: 0 0 auto;
-    padding: 3px 7px;
-    color: #00B8FF;
-    font-size: clamp(9px, 1vw, 12px);
-    line-height: 1.2;
-    font-weight: 700;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    background: #151515;
-    border-bottom: 1px solid #292929;
-}
-
-.hydro-frame {
-    display: block;
-    flex: 1 1 auto;
-    width: 100%;
-    min-height: 0;
-    border: 0;
-    background: #000;
-}
-
-@media (max-width: 650px) {
-    #hydro-panel {
-        flex-basis: 38vh;
-        max-height: 42vh;
-        gap: 3px;
-        padding: 3px;
-    }
-    .hydro-title {
-        font-size: 9px;
-        padding: 3px 4px;
-    }
-}
-
 /* Piè di pagina integrato */
 .footer-sources {
     background: #050505;
     border-top: 1px solid #1a1a1a;
-    padding: 5px 12px;
+    padding: 8px 20px;
     font-size: 11px;
     color: #888888;
     display: flex;
@@ -242,46 +178,6 @@ html, body {
     <div id="chart-container">
         <div id="chart"></div>
     </div>
-
-    <!-- Sei grafici idrometrici: 3 righe x 2 colonne nel terzo inferiore -->
-    <section id="hydro-panel" aria-label="Grafici idrometrici">
-        <div class="hydro-card">
-            <div class="hydro-title">SEVESO – CESANO MADERNO</div>
-            <iframe class="hydro-frame" title="Idrometro Seveso Cesano Maderno"
-                src="https://www.pegelalarm.at/paw/chart.html?commonid=po-51749-711200-it"
-                loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-        </div>
-        <div class="hydro-card">
-            <div class="hydro-title">SEVESO – MM VALFURVA</div>
-            <iframe class="hydro-frame" title="Idrometro Seveso MM Valfurva"
-                src="https://www.pegelalarm.at/paw/chart.html?commonid=po-53557-743500-it"
-                loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-        </div>
-        <div class="hydro-card">
-            <div class="hydro-title">SEVESO – PADERNO DUGNANO</div>
-            <iframe class="hydro-frame" title="Idrometro Seveso Paderno Dugnano"
-                src="https://www.pegelalarm.at/paw/chart.html?commonid=po-51737-711300-it"
-                loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-        </div>
-        <div class="hydro-card">
-            <div class="hydro-title">LAMBRO – LESMO PEREGALLO</div>
-            <iframe class="hydro-frame" title="Idrometro Lambro Lesmo Peregallo"
-                src="https://www.pegelalarm.at/paw/chart.html?commonid=lombardia-868-8120-it"
-                loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-        </div>
-        <div class="hydro-card">
-            <div class="hydro-title">SEVESO – NIGUARDA</div>
-            <iframe class="hydro-frame" title="Idrometro Seveso Niguarda"
-                src="https://www.pegelalarm.at/paw/chart.html?commonid=lombardia-1425-3118-it"
-                loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-        </div>
-        <div class="hydro-card">
-            <div class="hydro-title">LAMBRO – MILANO VIA FELTRE</div>
-            <iframe class="hydro-frame" title="Idrometro Lambro Milano Via Feltre"
-                src="https://www.pegelalarm.at/paw/chart.html?commonid=lombardia-869-8125-it"
-                loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-        </div>
-    </section>
 
     <!-- Footer Fonti -->
     <div class="footer-sources">
@@ -645,9 +541,6 @@ setInterval(loadForecast, 5 * 60 * 1000);
 setInterval(loadAlerts, 5 * 60 * 1000);
 
 window.addEventListener("resize", () => chart.resize());
-if (window.ResizeObserver) {
-    new ResizeObserver(() => chart.resize()).observe(chartDom);
-}
 </script>
 
 </body>
